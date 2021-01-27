@@ -1,27 +1,19 @@
-JNVoiceMod = {}
-JNVoiceMod.Config = JNVoiceMod.Config or {}
-JNVoiceMod.Config.Lang = JNVoiceMod.Config.Lang or {}
-
-
 if SERVER then
-  print("╔════════════════════════╗")
-  print(" JimNil VoiceMod LOADED! ")
-  print("╚════════════════════════╝")
-  include("jnvm/config/config.lua")
-  include("jnvm/config/"..JNVoiceMod.Config.Language..".lua")
-  include("jnvm/sv_voice.lua")
+    util.AddNetworkString("jnvm_network")
 
-  AddCSLuaFile("jnvm/config/config.lua")
-  AddCSLuaFile("jnvm/config/"..JNVoiceMod.Config.Language..".lua")
-  AddCSLuaFile("jnvm/cl_voice.lua")
+    AddCSLuaFile("jnvm/shared.lua")
+    AddCSLuaFile("jnvm/config/config.lua")
+    AddCSLuaFile("jnvm/cl_gui.lua")
+    AddCSLuaFile("jnvm/cl_fonts.lua")
 
-end
-if CLIENT then
-  print("╔════════════════════════╗")
-  print(" JimNil VoiceMod LOADED! ")
-  print("╚════════════════════════╝")
-  include("jnvm/config/config.lua")
-  include("jnvm/config/"..JNVoiceMod.Config.Language..".lua")
-  include("jnvm/cl_voice.lua")
+    include("jnvm/shared.lua")
+    include("jnvm/config/config.lua")
+    include("jnvm/init.lua")
+
+else
+    include("jnvm/shared.lua")
+    include("jnvm/config/config.lua")
+    include("jnvm/cl_gui.lua")
+    include("jnvm/cl_fonts.lua")
 
 end
