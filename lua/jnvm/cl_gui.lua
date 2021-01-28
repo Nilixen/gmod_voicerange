@@ -33,10 +33,24 @@ function JNVoiceMod:Blur( panel, layers, density, alpha, type )
 	end
 end
 
+function JNVoiceMod:Circle( x, y, radius, seg )
+	local cir = {}
+
+	table.insert( cir, { x = x, y = y, u = 0.5, v = 0.5 } )
+	for i = 0, seg do
+		local a = math.rad( ( i / seg ) * -360 )
+		table.insert( cir, { x = x + math.sin( a ) * radius, y = y + math.cos( a ) * radius, u = math.sin( a ) / 2 + 0.5, v = math.cos( a ) / 2 + 0.5 } )
+	end
+
+	local a = math.rad( 0 ) -- This is needed for non absolute segment counts
+	table.insert( cir, { x = x + math.sin( a ) * radius, y = y + math.cos( a ) * radius, u = math.sin( a ) / 2 + 0.5, v = math.cos( a ) / 2 + 0.5 } )
+
+	surface.DrawPoly( cir )
+end
 
 function JNVoiceMod:OpenConfigMenu()
 	local frame = vgui.Create("DFrame")
-	frame:SetSize(400,210)
+	frame:SetSize(400,240)
 	frame:Center()
 	frame:SetTitle("")
 	frame:SetDraggable(true)
@@ -88,6 +102,14 @@ function JNVoiceMod:OpenConfigMenu()
 	yellSlider:SetDecimals( 0 )
 	yellSlider:SetValue( self.Config.YellDistance )
 
+	local globalVoice =	vgui.Create( "DCheckBoxLabel", frame )
+	globalVoice:Dock(TOP)
+	globalVoice:DockMargin(10,5,10,0)
+	globalVoice:SetText("GlobalVoice - works only when NOT using TTT gamemode!")
+	globalVoice:SetValue( self.Config.GlobalVoice )
+	globalVoice:SizeToContents()
+
+
 	local buttonsPanel = vgui.Create("DPanel",frame)
 	buttonsPanel:Dock(FILL)
 	buttonsPanel:DockMargin(10,10,10,10)
@@ -128,6 +150,7 @@ function JNVoiceMod:OpenConfigMenu()
 			net.WriteInt(whisperSlider:GetValue(),16)
 			net.WriteInt(talkSlider:GetValue(),16)
 			net.WriteInt(yellSlider:GetValue(),16)
+			net.WriteBool(globalVoice:GetChecked())
 		net.SendToServer()
 		frame:Remove()
 	end
@@ -210,22 +233,29 @@ function JNVoiceMod:OpenSelectionMenu()
 		angle = angle * (180/math.pi)
 		local dst = math.Distance(fw/2,fh/2,x,y)
 		if dst > fw/4 and curtime+0.1 < CurTime() then
+			local ply = LocalPlayer()
 			local val
 			if angle >= -90 and angle < 45 then
-				val = "yell"
+				chat.AddText( Color( 170, 170, 170 ), "[JNVoiceMod] ", JNVoiceMod.Config.YellColor, JNVoiceMod.Lang.Yelling )
+				val = 3
 				frame:Remove()
 			elseif angle >= 45 and angle < 135 then
-				val = "talk"
+				chat.AddText( Color( 170, 170, 170 ), "[JNVoiceMod] ", JNVoiceMod.Config.TalkColor, JNVoiceMod.Lang.TalkingNormally )
+				val = 2
 				frame:Remove()
 			elseif angle <= -90 and angle > -180 or angle >= 135 and angle < 180 then
-				val = "whisper"
+				chat.AddText( Color( 170, 170, 170 ), "[JNVoiceMod] ", JNVoiceMod.Config.WhisperColor, JNVoiceMod.Lang.Whispering )
+				val = 1
 				frame:Remove()
 			end
-			if val then print(val) end
+			if val then
+				net.Start("jnvm_network")
+					net.WriteInt(2,16)
+					net.WriteInt(val,4)
+				net.SendToServer()
+			end
 		end
 	end
-
-
 end
 
 net.Receive("jnvm_network",function()
@@ -240,4 +270,30 @@ concommand.Add("voicemenu", function( ply, cmd, args )
   if IsValid(ply) then
 	  JNVoiceMod:OpenSelectionMenu()
   end
+end )
+concommand.Add("jnvmconfigmenu", function( ply, cmd, args )
+  if IsValid(ply) then
+	 JNVoiceMod:OpenConfigMenu()
+  end
+end )
+
+local lerp1 = 0
+local dst = LocalPlayer():GetNWInt("JNVoiceModDist")
+hook.Add("PostDrawOpaqueRenderables", "JNVM3d2d", function()
+    if engine.ActiveGamemode() == "terrortown" then
+		local ply = LocalPlayer()
+		if ply:IsActiveTraitor() and !ply.traitor_gvoice or ply:IsSpec() or GetRoundState() != ROUND_ACTIVE then
+			return
+		else
+			dst = Lerp(4*FrameTime(),dst,ply:GetNWInt("JNVoiceModDist"))
+			lerp1 = Lerp(4*FrameTime(),lerp1,(ply:IsSpeaking() and 150 or 0))
+			render.SetColorMaterial()
+			render.DrawSphere( ply:GetPos(), -dst, 50, 50, Color( 0, 0, 0, lerp1 ) )
+		end
+	else
+		dst = Lerp(4*FrameTime(),dst,ply:GetNWInt("JNVoiceModDist"))
+		lerp1 = Lerp(4*FrameTime(),lerp1,(ply:IsSpeaking() and 150 or 0))
+		render.SetColorMaterial()
+		render.DrawSphere( ply:GetPos(), -dst, 50, 50, Color( 0, 0, 0, lerp1 ) )
+	end
 end )

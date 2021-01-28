@@ -33,6 +33,7 @@ JNVoiceMod:LoadConfig()
 
 hook.Add( "PlayerInitialSpawn", "JNVoiceModSynchro", function( ply )
     JNVoiceMod:SynchronizeConfig(1,ply)
+    ply:SetNWInt("JNVoiceModDist",JNVoiceMod.Config.TalkDistance)
 end )
 
 net.Receive("jnvm_network",function(len, ply)
@@ -42,13 +43,24 @@ net.Receive("jnvm_network",function(len, ply)
         local whisper = net.ReadInt(16)
         local talk = net.ReadInt(16)
         local yell = net.ReadInt(16)
+        local globalvoice = net.ReadBool()
 
         JNVoiceMod.Config.WhisperDistance = whisper
         JNVoiceMod.Config.TalkDistance =  talk
         JNVoiceMod.Config.YellDistance =  yell
+        JNVoiceMod.Config.GlobalVoice =  globalvoice
 
         JNVoiceMod:SaveConfig()
         JNVoiceMod:SynchronizeConfig()
         ply:ChatPrint("Config saved!")
+    elseif num == 2 then
+        local val = net.ReadInt(4)
+        if val == 1 then
+            ply:SetNWInt("JNVoiceModDist",JNVoiceMod.Config.WhisperDistance)
+        elseif val == 2 then
+            ply:SetNWInt("JNVoiceModDist",JNVoiceMod.Config.TalkDistance)
+        elseif val == 3 then
+            ply:SetNWInt("JNVoiceModDist",JNVoiceMod.Config.YellDistance)
+        end
     end
 end)

@@ -1,31 +1,39 @@
-local GlobalVoice = false
-function GAMEMODE:PlayerCanHearPlayersVoice(listener, speaker)
 
-  if (not speaker:Alive()) and (not listener:Alive()) then
-     return true, false
-  end
+hook.Add("PlayerCanHearPlayersVoice","JNVoiceModHook", function(listener, speaker)
+    if listener != speaker then
+        local dist = listener:GetPos():Distance(speaker:GetPos()) <= speaker:GetNWInt("JNVoiceModDist")
 
-  if speaker:KeyDown(IN_SPEED) and speaker:Team() == listener:Team() then
-       return true, false
-  end
+        if engine.ActiveGamemode() == "terrortown" then
+            if GetRoundState() != ROUND_ACTIVE then
+                return true, false
+            end
+            if speaker:IsSpec() and not listener:IsSpec() then
+                return false, false
+            elseif speaker:IsSpec() and listener:IsSpec() then
+                return true, false
+            end
 
-   if (not IsValid(speaker)) or (not IsValid(listener)) or (listener == speaker) then
-      return false, false
-   end
+            if speaker:IsActiveTraitor() then
+                if !speaker.traitor_gvoice then
+                    if listener:IsActiveTraitor() then
+                        return true, false
+                    end
+                    return false, false
+                end
+            end
+            if dist then
+                return true, true
+            end
 
-   if (not speaker:Alive()) then
-      return false, false
-   end
-
-
-   if listener:GetPos():DistToSqr( speaker:GetPos() ) > 250000 then
-     return false
-   end
-
-
-   if GlobalVoice then
-     return true, false
-   else
-     return true, true
-   end
-end
+            return false
+        else
+            if JNVoiceMod.Config.GlobalVoice then
+                if dist then
+                    return true,true
+                end
+            else
+                return true,false
+            end
+        end
+    end
+end)
