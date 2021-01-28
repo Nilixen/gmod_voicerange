@@ -8,7 +8,8 @@ if SERVER then
 
     include("jnvm/shared.lua")
     include("jnvm/config/config.lua")
-    include("jnvm/init.lua")
+    include("jnvm/sv_network.lua")
+    include("jnvm/sv_init.lua")
 
 else
     include("jnvm/shared.lua")
