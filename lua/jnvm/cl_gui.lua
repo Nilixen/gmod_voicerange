@@ -280,8 +280,8 @@ end )
 local lerp1 = 0
 local dst = LocalPlayer():GetNWInt("JNVoiceModDist")
 hook.Add("PostDrawOpaqueRenderables", "JNVM3d2d", function()
-    if engine.ActiveGamemode() == "terrortown" then
 		local ply = LocalPlayer()
+    if engine.ActiveGamemode() == "terrortown" then
 		if ply:IsActiveTraitor() and !ply.traitor_gvoice or ply:IsSpec() or GetRoundState() != ROUND_ACTIVE then
 			return
 		else
