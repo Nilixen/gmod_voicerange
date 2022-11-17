@@ -1,3 +1,5 @@
+// default config used only once when setting up the data. Can be edited ingame or in servers data(GarrysMod/garrysmod/data/<FileDir>/settings.txt) folder
+
 JNVoiceMod.FileDir = "jnvm/"
 
 JNVoiceMod.Config.Ranges = {
