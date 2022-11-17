@@ -1,66 +1,51 @@
-file.CreateDir("jnvm")
-
-JNVoiceMod.FileDir = "jnvm/"
-
-function JNVoiceMod:SaveConfig()
-    file.Write( self.FileDir.."settings.txt", util.TableToJSON(self.Config) )
-end
-
-function JNVoiceMod:SynchronizeConfig(num,ply)
-    if not num then num = 0 end
-    net.Start("jnvm_network")
-        net.WriteInt(1,16)
-        net.WriteTable(self.Config)
-    if num == 0 then
-        net.Broadcast()
-    elseif num == 1 then
-        if not ply then return end
-        net.Send(ply)
-    end
-end
-
-function JNVoiceMod:LoadConfig()
-    if not file.Exists( self.FileDir.."settings.txt", "DATA" ) then
-        file.Write( self.FileDir.."settings.txt", util.TableToJSON(self.Config) )
-    else
-        local data = util.JSONToTable(file.Read( self.FileDir.."settings.txt", "DATA" ))
-        self.Config = data
-        JNVoiceMod:SynchronizeConfig()
-    end
-end
-
-JNVoiceMod:LoadConfig()
-
-hook.Add( "PlayerInitialSpawn", "JNVoiceModSynchro", function( ply )
-    JNVoiceMod:SynchronizeConfig(1,ply)
-    ply:SetNWInt("JNVoiceModDist",JNVoiceMod.Config.TalkDistance)
-end )
-
 net.Receive("jnvm_network",function(len, ply)
     local num = net.ReadInt(16)
     if num == 1 then
-        if not ply:IsAdmin() then ply:ChatPrint("YOU CAN'T DO THAT!") return end
+        if not ply:IsSuperAdmin() then ply:ChatPrint("YOU'RE NOT AUTHORIZED TO DO THAT!") return end
         local whisper = net.ReadInt(16)
         local talk = net.ReadInt(16)
         local yell = net.ReadInt(16)
         local globalvoice = net.ReadBool()
 
-        JNVoiceMod.Config.WhisperDistance = whisper
-        JNVoiceMod.Config.TalkDistance =  talk
-        JNVoiceMod.Config.YellDistance =  yell
+        JNVoiceMod.Config.Ranges[1].rng = whisper
+        JNVoiceMod.Config.Ranges[2].rng =  talk
+        JNVoiceMod.Config.Ranges[3].rng =  yell
         JNVoiceMod.Config.GlobalVoice =  globalvoice
 
         JNVoiceMod:SaveConfig()
         JNVoiceMod:SynchronizeConfig()
         ply:ChatPrint("Config saved!")
     elseif num == 2 then
-        local val = net.ReadInt(4)
-        if val == 1 then
-            ply:SetNWInt("JNVoiceModDist",JNVoiceMod.Config.WhisperDistance)
-        elseif val == 2 then
-            ply:SetNWInt("JNVoiceModDist",JNVoiceMod.Config.TalkDistance)
-        elseif val == 3 then
-            ply:SetNWInt("JNVoiceModDist",JNVoiceMod.Config.YellDistance)
+        ply:SetNWInt("JNVoiceModDist",ply:GetNWInt("JNVoiceModDist",0)+1)
+        if ply:GetNWInt("JNVoiceModDist") > 3 then
+            ply:SetNWInt("JNVoiceModDist",1)
         end
+        JNVoiceMod:SyncPlayersData(1,ply)
     end
 end)
+
+function JNVoiceMod:SyncPlayersData(num,ply)
+     
+    if num == 1 then
+        local tbl = {}
+        tbl[ply:SteamID64()] = ply:GetNWInt("JNVoiceModDist",1)
+        net.Start("jnvm_network")
+            net.WriteInt(2,16)
+            net.WriteTable(tbl)
+        net.Broadcast()
+        //print(ply:Name().." broadcasted")
+    elseif num == 2 then
+        local tbl = {}
+        for k,v in pairs(player.GetAll()) do
+            tbl[v:SteamID64()] = v:GetNWInt("JNVoiceModDist",1)
+        end
+        net.Start("jnvm_network")
+            net.WriteInt(2,16)
+            net.WriteTable(tbl)
+        net.Send(ply)
+        //print("sent to "..ply:Name())
+    end
+
+end
+
+
