@@ -85,7 +85,7 @@ function PANEL:Init()
 	closeBtn.posx,closeBtn.posy = 0,0
 	closeBtn.Paint = function(s,w,h)
 		draw.RoundedBox(6,0,0,w,h,JNVoiceMod.clgui.colors.red)
-		draw.SimpleText("Close","JNVoiceMod.close",w/2,h/2,JNVoiceMod.clgui.text.primary,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+		draw.SimpleText(JNVoiceMod:GetPhrase("close"),"JNVoiceMod.close",w/2,h/2,JNVoiceMod.clgui.text.primary,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
 		if s:IsHovered() then
 			s.fill = Lerp(s.tempo * FrameTime(),s.fill,1.1)
 			s.posx,s.posy = s:CursorPos()
@@ -145,7 +145,8 @@ function PANEL:Init()
 	submitBtn:SetText("")
 	submitBtn:SetEnabled(false)
 	submitBtn.parent = self
-	submitBtn.text = "Submit"
+	submitBtn.text = "Save"
+	submitBtn.text2 = "Submit"
 	submitBtn.xOffset,submitBtn.yOffset,submitBtn.xOffsetTarget,submitBtn.yOffsetTarget = 0,0,0,0
 	submitBtn.tick = 0
 	submitBtn.tempo = 1
@@ -186,7 +187,7 @@ function PANEL:Init()
 		draw.SimpleText("2...","JNVoiceMod.submit",(w/2)+s.yOffset,(h/2)-s.xOffset+h*2,JNVoiceMod.clgui.text.primary,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
 		draw.SimpleText("1...","JNVoiceMod.submit",(w/2)+s.yOffset,(h/2)-s.xOffset+h*3,JNVoiceMod.clgui.text.primary,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
 		draw.RoundedBox(6,-w+s.yOffset,-s.xOffset+h*3,w,h,JNVoiceMod.clgui.colors.green)
-		draw.SimpleText("Submit","JNVoiceMod.submit",-w+(w/2)+s.yOffset,(h/2)-s.xOffset+h*3,JNVoiceMod.clgui.text.primary,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+		draw.SimpleText(s.text2,"JNVoiceMod.submit",-w+(w/2)+s.yOffset,(h/2)-s.xOffset+h*3,JNVoiceMod.clgui.text.primary,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
 
 	end
 	
@@ -227,7 +228,7 @@ function PANEL:Init()
 	local whisperLabel = self.whisperLabel
 	whisperLabel:Dock(TOP)
 	whisperLabel:DockMargin(8,8,8,0)
-	whisperLabel:SetText("Whisper Range")
+	whisperLabel:SetText(JNVoiceMod:GetPhrase("whisperRng"))
 	whisperLabel:SetFont("JNVoiceMod.header")
 
 
@@ -245,11 +246,12 @@ function PANEL:Init()
 	whisperSlider.PaintOver = function(s,w,h)
 		surface.SetFont("JNVoiceMod.header")
 		local x,y = surface.GetTextSize(s:GetValue())
-		draw.SimpleText("units","JNVoiceMod.header",5+x,0,whisperSlider.color,TEXT_ALIGN_LEFT,TEXT_ALIGN_TOP)
+		draw.SimpleText(JNVoiceMod:GetPhrase("units"),"JNVoiceMod.header",5+x,0,whisperSlider.color,TEXT_ALIGN_LEFT,TEXT_ALIGN_TOP)
 		draw.RoundedBox(6,0,0,w,h,JNVoiceMod.clgui.colors.blended)
 	end
 	whisperSlider.Think = function(s)
-		if tonumber(s:GetValue()) <= 0 then
+		local val = tonumber(s:GetValue())
+		if (isnumber(val) and val or 0) <= 0 then
 			s.color = JNVoiceMod.clgui.text.red
 		else
 			s.color = JNVoiceMod.clgui.text.primary
@@ -261,7 +263,7 @@ function PANEL:Init()
 	local talkLabel = self.talkLabel
 	talkLabel:Dock(TOP)
 	talkLabel:DockMargin(8,8,8,0)
-	talkLabel:SetText("Talk Range")
+	talkLabel:SetText(JNVoiceMod:GetPhrase("talkRng"))
 	talkLabel:SetFont("JNVoiceMod.header")
 
 
@@ -279,11 +281,12 @@ function PANEL:Init()
 	talkSlider.PaintOver = function(s,w,h)
 		surface.SetFont("JNVoiceMod.header")
 		local x,y = surface.GetTextSize(s:GetValue())
-		draw.SimpleText("units","JNVoiceMod.header",5+x,0,talkSlider.color,TEXT_ALIGN_LEFT,TEXT_ALIGN_TOP)
+		draw.SimpleText(JNVoiceMod:GetPhrase("units"),"JNVoiceMod.header",5+x,0,talkSlider.color,TEXT_ALIGN_LEFT,TEXT_ALIGN_TOP)
 		draw.RoundedBox(6,0,0,w,h,JNVoiceMod.clgui.colors.blended)
 	end
 	talkSlider.Think = function(s)
-		if tonumber(s:GetValue()) <= 0 then
+		local val = tonumber(s:GetValue())
+		if (isnumber(val) and val or 0) <= 0 then
 			s.color = JNVoiceMod.clgui.text.red
 		else
 			s.color = JNVoiceMod.clgui.text.primary
@@ -294,7 +297,7 @@ function PANEL:Init()
 	local yellLabel = self.yellLabel
 	yellLabel:Dock(TOP)
 	yellLabel:DockMargin(8,8,8,0)
-	yellLabel:SetText("Yell Range")
+	yellLabel:SetText(JNVoiceMod:GetPhrase("yellRng"))
 	yellLabel:SetFont("JNVoiceMod.header")
 
 
@@ -312,11 +315,12 @@ function PANEL:Init()
 	yellSlider.PaintOver = function(s,w,h)
 		surface.SetFont("JNVoiceMod.header")
 		local x,y = surface.GetTextSize(s:GetValue())
-		draw.SimpleText("units","JNVoiceMod.header",5+x,0,yellSlider.color,TEXT_ALIGN_LEFT,TEXT_ALIGN_TOP)
+		draw.SimpleText(JNVoiceMod:GetPhrase("units"),"JNVoiceMod.header",5+x,0,yellSlider.color,TEXT_ALIGN_LEFT,TEXT_ALIGN_TOP)
 		draw.RoundedBox(6,0,0,w,h,JNVoiceMod.clgui.colors.blended)
 	end
 	yellSlider.Think = function(s)
-		if tonumber(s:GetValue()) <= 0 then
+		local val = tonumber(s:GetValue())
+		if (isnumber(val) and val or 0) <= 0 then
 			s.color = JNVoiceMod.clgui.text.red
 		else
 			s.color = JNVoiceMod.clgui.text.primary
@@ -328,12 +332,12 @@ function PANEL:Init()
 	local globalvoiceLabel = self.globalvoiceLabel
 	globalvoiceLabel:Dock(TOP)
 	globalvoiceLabel:DockMargin(8,8,8,0)
-	globalvoiceLabel:SetText("Global Voice")
+	globalvoiceLabel:SetText(JNVoiceMod:GetPhrase("globalvoice"))
 	globalvoiceLabel:SetFont("JNVoiceMod.header")
 
 	self.globalVoiceCheckbox = self:Add("JNVoiceMod.checkBox")
 	local checkbox = self.globalVoiceCheckbox
-	checkbox:SetText("Works only when not using TTT gamemode!")
+	checkbox:SetText(JNVoiceMod:GetPhrase("onlyTTT"))
 	checkbox:Dock(TOP)
 	checkbox:DockMargin(8,8,8,0)
 	checkbox:SetFont("JNVoiceMod.header")
@@ -363,13 +367,15 @@ function JNVoiceMod:OpenConfigMenu()
     frame:SetSize(600,360)
     frame:Center()
     frame:MakePopup()
-    frame:SetTitle("N's Improved Voice Chat - Admin Config")
+    frame:SetTitle(JNVoiceMod:GetPhrase("admConfigGUI"))
 
 	// bottom toolbox
 	frame.footer = frame:Add("JNVoiceMod.footer")
 	local footer = frame.footer 
 	footer:Dock(BOTTOM)
-	footer.submitBtn.text = "Save"
+	footer.submitBtn.text = JNVoiceMod:GetPhrase("save")
+	footer.submitBtn.text2 = JNVoiceMod:GetPhrase("submit")
+
 	footer.submitBtn.check = function(s)
 		return (tonumber(s.parent.body.whisperSlider:GetValue()) <= 0 or
 		tonumber(s.parent.body.talkSlider:GetValue()) <= 0 or 
@@ -405,13 +411,14 @@ function JNVoiceMod:OpenClConfig()
     frame:SetSize(600,(ScrH() < 900 and ScrH()*0.8) or 800)
     frame:Center()
     frame:MakePopup()
-    frame:SetTitle("N's Improved Voice Chat - Client Config")
+    frame:SetTitle(JNVoiceMod:GetPhrase("clConfigGUI"))
 
 	// bottom toolbox
 	frame.footer = frame:Add("JNVoiceMod.footer")
 	local footer = frame.footer 
 	footer:Dock(BOTTOM)
-	footer.submitBtn.text = "Save"
+	footer.submitBtn.text = JNVoiceMod:GetPhrase("save")
+	footer.submitBtn.text2 = JNVoiceMod:GetPhrase("submit")
 	footer.submitBtn.check = function(s)
 		return false
 	end
@@ -728,4 +735,4 @@ end )
 
 
 
-JNVoiceMod:OpenClConfig()
+//JNVoiceMod:OpenClConfig()

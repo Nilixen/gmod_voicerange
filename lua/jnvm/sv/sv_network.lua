@@ -8,9 +8,9 @@ net.Receive("jnvm_network",function(len, ply)
         local globalvoice = net.ReadBool()
 
         JNVoiceMod.Config.Ranges[1].rng = whisper
-        JNVoiceMod.Config.Ranges[2].rng =  talk
-        JNVoiceMod.Config.Ranges[3].rng =  yell
-        JNVoiceMod.Config.GlobalVoice =  globalvoice
+        JNVoiceMod.Config.Ranges[2].rng = talk
+        JNVoiceMod.Config.Ranges[3].rng = yell
+        JNVoiceMod.Config.GlobalVoice = globalvoice
 
         JNVoiceMod:SaveConfig()
         JNVoiceMod:SynchronizeConfig()

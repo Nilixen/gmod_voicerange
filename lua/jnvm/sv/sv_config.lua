@@ -8,6 +8,7 @@ JNVoiceMod.Config.Ranges = {
 	[3] = {rng = 500},
 
 }
+JNVoiceMod.Config.Language = "EN-en"
 
 -- WHEN USING GAMEMODE OTHER THAN Terrortown (TTT) it will make that you can talk with somone close to you
 JNVoiceMod.Config.GlobalVoice = false
