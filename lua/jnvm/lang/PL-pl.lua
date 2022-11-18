@@ -1,4 +1,5 @@
 JNVoiceMod.Lang["PL-pl"] = {
+    ["lang"] = "Polski",
     ["close"] = "Zamknij",
     ["admConfigGUI"] = "N's Improved Voice Chat - Konfiguracja administratora",
     ["clConfigGUI"] = "N's Improved Voice Chat - Konfiguracja klienta",
@@ -10,4 +11,7 @@ JNVoiceMod.Lang["PL-pl"] = {
     ["yellRng"] = "Zasięg krzyku",
     ["globalvoice"] = "Rozmowa globalna",
     ["units"] = "jednostek",
+    ["serverLanguage"] = "Język serwera",
+    ["clientLanguage"] = "Język klienta",
+    ["guiColor"] = "Kolor GUI",
 }

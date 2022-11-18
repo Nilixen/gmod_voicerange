@@ -1,24 +1,30 @@
-if SERVER then
-    util.AddNetworkString("jnvm_network")
-end
-
-// shared
-for _, v in pairs(file.Find("jnvm/sh/*", "LUA")) do
-	include("jnvm/sh/" .. v)
-	if SERVER then AddCSLuaFile("jnvm/sh/" .. v) end
-end
-
-// client
-for _, v in pairs(file.Find("jnvm/cl/*", "LUA")) do
-	if CLIENT then include("jnvm/cl/" .. v) else AddCSLuaFile("jnvm/cl/" .. v) end
-end
-
-// server
 if SERVER or game.SinglePlayer() then
-	for _, v in pairs(file.Find("jnvm/sv/*", "LUA")) do
-		include("jnvm/sv/" .. v)
-	end
+    util.AddNetworkString("jnvm_network")
+	// sh
+		AddCSLuaFile("jnvm/sh/sh_init.lua")
+		include("jnvm/sh/sh_init.lua")
+	// sv
+		include("jnvm/sv/sv_config.lua")
+		include("jnvm/sv/sv_init.lua")
+		include("jnvm/sv/sv_network.lua")
+	// cl
+		AddCSLuaFile("jnvm/cl/cl_init.lua")
+		AddCSLuaFile("jnvm/cl/cl_defconfig.lua")
+		AddCSLuaFile("jnvm/cl/cl_guiconfig.lua")
+		AddCSLuaFile("jnvm/cl/cl_fonts.lua")
+		AddCSLuaFile("jnvm/cl/cl_gui.lua")
 end
+if CLIENT then
+	// sh
+		include("jnvm/sh/sh_init.lua")
+	//cl
+		include("jnvm/cl/cl_init.lua")
+		include("jnvm/cl/cl_defconfig.lua")
+		include("jnvm/cl/cl_guiconfig.lua")
+		include("jnvm/cl/cl_fonts.lua")
+		include("jnvm/cl/cl_gui.lua")
+end
+
 
 // language
 for _, v in pairs(file.Find("jnvm/lang/*", "LUA")) do

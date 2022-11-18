@@ -14,12 +14,13 @@ function PANEL:Init()
 	button:Dock(LEFT)
 	button:SetWide(self:GetTall()*2)
 	button.Paint = function(s,w,h)
-		draw.RoundedBox(h,0,0,w,h,JNVoiceMod.clgui.colors.primary)
+		draw.RoundedBox(h,0,0,w,h,JNVoiceMod.clgui.colors.blended)
 		s.xSwitch = math.Clamp(Lerp(s.tempo*FrameTime(),s.xSwitch,(s:GetChecked() and 1.1) or -0.1),0,1)
 		local red = JNVoiceMod.clgui.colors.red
 		local green = JNVoiceMod.clgui.colors.green
 		draw.RoundedBox(h,2+h*s.xSwitch,2,h-4,h-4,(s.xSwitch <=.5 and red) or green)
 		draw.SimpleText((s.xSwitch <=.5 and "OFF") or "ON","JNVoiceMod.checkbox",h/2+h*s.xSwitch,h/2,JNVoiceMod.clgui.text.primary,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+		draw.RoundedBox(h,2+h*s.xSwitch,2,h-4,h-4,JNVoiceMod.clgui.colors.blended)
 	end
 
 	self.label = self:Add("DLabel")
@@ -50,15 +51,108 @@ function PANEL:GetChecked()
 	return self.button:GetChecked()
 end
 
+  
 
 vgui.Register("JNVoiceMod.checkBox",PANEL)
 
+// --------------------------- CUSTOM COMBOBOX --------------------------- \\
+local PANEL = {}
 
+JNVoiceMod:CreateFont("combobox",15)
+
+function PANEL:Init()
+	self:SetTextColor(JNVoiceMod.clgui.text.primary)
+	self.Paint = function(s,w,h)
+		//draw.SimpleText(JNVoiceMod:GetPhrase("lang"),"JNVoiceMod.header",5,h,yellSlider.color,TEXT_ALIGN_LEFT,TEXT_ALIGN_BOTTOM)
+ 		if s:IsMenuOpen() then
+			draw.RoundedBoxEx(6,0,0,w,h,JNVoiceMod.clgui.colors.blended,true,true,false,false)
+		else
+			draw.RoundedBox(6,0,0,w,h,JNVoiceMod.clgui.colors.blended)
+		end
+		if s:IsHovered() then
+			s:SetTextColor(JNVoiceMod.clgui.text.primary)
+		else
+			s:SetTextColor(JNVoiceMod.clgui.text.combobox)
+		end
+	end
+	local once = true
+	self.Think = function(s)
+		if s:IsMenuOpen() and once then
+			local color = JNVoiceMod.ClConfig.GuiColor
+			color.a = 20
+			
+			s.Menu:SetPaintBackground(false)
+			s.Menu:SetDrawBorder( false )
+			local count = s.Menu:ChildCount()
+			for i = 1, count do
+				local child = s.Menu:GetChild(i)
+				s.Menu:GetCanvas().Paint = function() end
+				child:SetFont("JNVoiceMod.combobox")
+				child:SetTextColor(JNVoiceMod.clgui.text.primary)
+				child.Paint = function(s,w,h)
+					
+					if s:IsHovered() then
+						s:SetTextColor(JNVoiceMod.clgui.text.primary)
+					else
+						s:SetTextColor(JNVoiceMod.clgui.text.combobox)
+					end
+					draw.RoundedBoxEx((i == count and 6 or 0),0,0,w,h,JNVoiceMod.clgui.colors.secondary,false,false,true,true)
+					draw.RoundedBox(0,0,0,w,h,color)
+					draw.RoundedBoxEx((i == count and 6 or 0),0,0,w,h,JNVoiceMod.clgui.colors.blended,false,false,true,true)
+				end
+			end
+		else
+			once = true
+		end
+	end
+
+end
+
+vgui.Register("NJVoiceMod.ComboBox",PANEL,"DComboBox")
+
+// --------------------------- CUSTOM COLOR PICKER --------------------------- \\
+local PANEL = {}
+
+JNVoiceMod:CreateFont("colorpicker",25,1500)
+
+function PANEL:Init()
+	// todo fix this shit
+	self.redPicker = self:Add("DTextEntry")
+	local redPicker = self.redPicker
+	redPicker:Dock(LEFT)
+	redPicker:DockMargin(8,16,8,16)
+	redPicker:SetText(JNVoiceMod.Config.Ranges[1].rng)	
+	redPicker:SetNumeric(true)
+	redPicker:SetPaintBorderEnabled(false)
+	redPicker:SetPaintBackground(false)
+	redPicker:SetFont("JNVoiceMod.colorpicker")
+	redPicker.color = JNVoiceMod.clgui.text.primary
+	redPicker:SetTextColor(redPicker.color)
+	redPicker.PaintOver = function(s,w,h)
+		surface.SetFont("JNVoiceMod.header")
+		local x,y = surface.GetTextSize(s:GetValue())
+		draw.RoundedBox(6,0,0,w,h,JNVoiceMod.clgui.colors.blended)
+	end
+	redPicker.Think = function(s)
+		local val = tonumber(s:GetValue())
+		if ((isnumber(val) and val or 0) <= 0) and ((isnumber(val) and val or 256) > 255) then
+			s.color = JNVoiceMod.clgui.text.red
+		else
+			s.color = JNVoiceMod.clgui.text.primary
+		end
+		redPicker:SetTextColor(redPicker.color)
+	end
+
+
+end
+
+vgui.Register("JNVoiceMod.colorPicker",PANEL)
 // --------------------------- FRAME --------------------------- \\
 
 local PANEL = {}
 JNVoiceMod:CreateFont("header",20)
-JNVoiceMod:CreateFont("close",20,false,1500)
+JNVoiceMod:CreateFont("error",15)
+JNVoiceMod:CreateFont("close",20,1500)
 
 function PANEL:Init()
 
@@ -67,7 +161,10 @@ function PANEL:Init()
 	local header = self.header
     header:Dock(TOP)
     header.Paint = function (panel,w,h)
+		local color = JNVoiceMod.ClConfig.GuiColor
+		color.a = 20
         draw.RoundedBoxEx(6,0,0,w,h,JNVoiceMod.clgui.colors.primary,true,true,false,false)
+		draw.RoundedBox(0,0,0,w,h,color)
 		draw.RoundedBox(0,0,h-3,w,3,JNVoiceMod.clgui.colors.blended)
     end
 
@@ -134,8 +231,13 @@ JNVoiceMod:CreateFont("submit",35)
 function PANEL:Init()
 
 	self.Paint = function(s,w,h)
+		local color = JNVoiceMod.ClConfig.GuiColor
+		color.a = 20
+		
 		draw.RoundedBoxEx(6,0,0,w,h,JNVoiceMod.clgui.colors.primary,false,false,true,true)
+		draw.RoundedBox(0,0,0,w,h,color)
 		draw.RoundedBox(0,0,0,w,3,JNVoiceMod.clgui.colors.blended)
+
 	end
 
 	self.submitBtn = self:Add("DButton")
@@ -182,7 +284,7 @@ function PANEL:Init()
 			s:SetEnabled(true)
 		end
 		draw.SimpleText(s.text,"JNVoiceMod.submit",(w/2)+s.yOffset,(h/2)-s.xOffset,JNVoiceMod.clgui.text.primary,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
-		draw.SimpleText("ERROR IN VALUES ","JNVoiceMod.header",w+(w/2)+s.yOffset,(h/2)-s.xOffset,JNVoiceMod.clgui.text.red,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+		draw.SimpleText("ERROR IN VALUES ","JNVoiceMod.error",w+(w/2)+s.yOffset,(h/2)-s.xOffset,JNVoiceMod.clgui.text.red,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
 		draw.SimpleText("3...","JNVoiceMod.submit",(w/2)+s.yOffset,(h/2)-s.xOffset+h,JNVoiceMod.clgui.text.primary,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
 		draw.SimpleText("2...","JNVoiceMod.submit",(w/2)+s.yOffset,(h/2)-s.xOffset+h*2,JNVoiceMod.clgui.text.primary,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
 		draw.SimpleText("1...","JNVoiceMod.submit",(w/2)+s.yOffset,(h/2)-s.xOffset+h*3,JNVoiceMod.clgui.text.primary,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
@@ -221,7 +323,11 @@ local PANEL = {}
 function PANEL:Init()
 	
 	self.Paint = function(s,w,h)
+		local color = JNVoiceMod.ClConfig.GuiColor
+		color.a = 5
+		
 		draw.RoundedBox(0,0,0,w,h,JNVoiceMod.clgui.colors.secondary)
+		draw.RoundedBox(0,0,0,w,h,color)
 	end
 
 	self.whisperLabel = self:Add("DLabel")
@@ -246,7 +352,7 @@ function PANEL:Init()
 	whisperSlider.PaintOver = function(s,w,h)
 		surface.SetFont("JNVoiceMod.header")
 		local x,y = surface.GetTextSize(s:GetValue())
-		draw.SimpleText(JNVoiceMod:GetPhrase("units"),"JNVoiceMod.header",5+x,0,whisperSlider.color,TEXT_ALIGN_LEFT,TEXT_ALIGN_TOP)
+		draw.SimpleText(JNVoiceMod:GetPhrase("units"),"JNVoiceMod.header",5+x,h,whisperSlider.color,TEXT_ALIGN_LEFT,TEXT_ALIGN_BOTTOM)
 		draw.RoundedBox(6,0,0,w,h,JNVoiceMod.clgui.colors.blended)
 	end
 	whisperSlider.Think = function(s)
@@ -281,7 +387,7 @@ function PANEL:Init()
 	talkSlider.PaintOver = function(s,w,h)
 		surface.SetFont("JNVoiceMod.header")
 		local x,y = surface.GetTextSize(s:GetValue())
-		draw.SimpleText(JNVoiceMod:GetPhrase("units"),"JNVoiceMod.header",5+x,0,talkSlider.color,TEXT_ALIGN_LEFT,TEXT_ALIGN_TOP)
+		draw.SimpleText(JNVoiceMod:GetPhrase("units"),"JNVoiceMod.header",5+x,h,talkSlider.color,TEXT_ALIGN_LEFT,TEXT_ALIGN_BOTTOM)
 		draw.RoundedBox(6,0,0,w,h,JNVoiceMod.clgui.colors.blended)
 	end
 	talkSlider.Think = function(s)
@@ -315,7 +421,7 @@ function PANEL:Init()
 	yellSlider.PaintOver = function(s,w,h)
 		surface.SetFont("JNVoiceMod.header")
 		local x,y = surface.GetTextSize(s:GetValue())
-		draw.SimpleText(JNVoiceMod:GetPhrase("units"),"JNVoiceMod.header",5+x,0,yellSlider.color,TEXT_ALIGN_LEFT,TEXT_ALIGN_TOP)
+		draw.SimpleText(JNVoiceMod:GetPhrase("units"),"JNVoiceMod.header",5+x,h,yellSlider.color,TEXT_ALIGN_LEFT,TEXT_ALIGN_BOTTOM)
 		draw.RoundedBox(6,0,0,w,h,JNVoiceMod.clgui.colors.blended)
 	end
 	yellSlider.Think = function(s)
@@ -339,9 +445,32 @@ function PANEL:Init()
 	local checkbox = self.globalVoiceCheckbox
 	checkbox:SetText(JNVoiceMod:GetPhrase("onlyTTT"))
 	checkbox:Dock(TOP)
-	checkbox:DockMargin(8,8,8,0)
+	checkbox:DockMargin(8,0,8,8)
 	checkbox:SetFont("JNVoiceMod.header")
 	checkbox:SetValue( JNVoiceMod.Config.GlobalVoice )
+
+	self.langLabel = self:Add("DLabel")
+	local langLabel = self.langLabel
+	langLabel:Dock(TOP)
+	langLabel:DockMargin(8,8,8,0)
+	langLabel:SetText(JNVoiceMod:GetPhrase("serverLanguage"))
+	langLabel:SetFont("JNVoiceMod.header")
+
+	self.langComboBox = self:Add("NJVoiceMod.ComboBox")
+	local langComboBox = self.langComboBox
+	langComboBox:Dock(TOP)
+	langComboBox:DockMargin(8,0,8,8)
+	langComboBox:SetFont("JNVoiceMod.header")
+
+	local i = 1
+	for k,v in pairs(JNVoiceMod.Lang) do
+		langComboBox:AddChoice(v.lang,k)
+		if JNVoiceMod.Config.Language == k then langComboBox:ChooseOptionID(i)
+		end
+		i = i + 1
+	end
+
+
 
 end
 
@@ -351,8 +480,32 @@ vgui.Register("JNVoiceMod.adminBody",PANEL)
 local PANEL = {}
 function PANEL:Init()
 	self.Paint = function(s,w,h)
+		local color = JNVoiceMod.ClConfig.GuiColor
+		color.a = 5
+		
 		draw.RoundedBox(0,0,0,w,h,JNVoiceMod.clgui.colors.secondary)
+		draw.RoundedBox(0,0,0,w,h,color)
 	end
+
+	// color picker
+	self.guiColorLabel = self:Add("DLabel")
+	local guiColorLabel = self.guiColorLabel
+	guiColorLabel:Dock(TOP)
+	guiColorLabel:DockMargin(8,8,8,0)
+	guiColorLabel:SetText(JNVoiceMod:GetPhrase("guiColor"))
+	guiColorLabel:SetFont("JNVoiceMod.header")
+
+	self.colorPicker = self:Add("JNVoiceMod.colorPicker")
+	local colorPicker = self.colorPicker 
+	colorPicker:Dock(TOP)
+	colorPicker:DockMargin(8,4,8,0)
+
+
+end
+
+function PANEL:PerformLayout()
+
+	self.colorPicker:SetTall(70)
 
 end
 
@@ -364,7 +517,7 @@ function JNVoiceMod:OpenConfigMenu()
 	
     JNVoiceMod.ClConfig.frame = vgui.Create("JNVoiceMod.frame")
     local frame = JNVoiceMod.ClConfig.frame
-    frame:SetSize(600,360)
+    frame:SetSize(600,420)
     frame:Center()
     frame:MakePopup()
     frame:SetTitle(JNVoiceMod:GetPhrase("admConfigGUI"))
@@ -382,11 +535,13 @@ function JNVoiceMod:OpenConfigMenu()
 		tonumber(s.parent.body.yellSlider:GetValue()) <= 0 ) 
 	end
 	footer.submitBtn.DoClick = function(s)
+		local _lang,data = s.parent.body.langComboBox:GetSelected()
 		net.Start("jnvm_network")
 			net.WriteInt(1,16)
 			net.WriteInt(s.parent.body.whisperSlider:GetValue(),16)
 			net.WriteInt(s.parent.body.talkSlider:GetValue(),16)
 			net.WriteInt(s.parent.body.yellSlider:GetValue(),16)
+			net.WriteString(data)
 			net.WriteBool(s.parent.body.globalVoiceCheckbox:GetChecked())
 		net.SendToServer()
 		if IsValid(JNVoiceMod.ClConfig.frame) then JNVoiceMod.ClConfig.frame:Remove() end
@@ -408,7 +563,7 @@ function JNVoiceMod:OpenClConfig()
 	
     JNVoiceMod.ClConfig.frame = vgui.Create("JNVoiceMod.frame")
     local frame = JNVoiceMod.ClConfig.frame
-    frame:SetSize(600,(ScrH() < 900 and ScrH()*0.8) or 800)
+    frame:SetSize(600, 800)
     frame:Center()
     frame:MakePopup()
     frame:SetTitle(JNVoiceMod:GetPhrase("clConfigGUI"))
@@ -423,6 +578,12 @@ function JNVoiceMod:OpenClConfig()
 		return false
 	end
 	--footer.submitBtn.DoClick = function(s) end
+	
+	// main body
+	frame.body = frame:Add("JNVoiceMod.clientBody")
+	local body = frame.body
+	body:Dock(FILL)
+	frame.footer.body = body
 
 
 	

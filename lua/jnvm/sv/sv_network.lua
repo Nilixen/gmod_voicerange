@@ -5,11 +5,13 @@ net.Receive("jnvm_network",function(len, ply)
         local whisper = net.ReadInt(16)
         local talk = net.ReadInt(16)
         local yell = net.ReadInt(16)
+        local lang = net.ReadString()
         local globalvoice = net.ReadBool()
 
         JNVoiceMod.Config.Ranges[1].rng = whisper
         JNVoiceMod.Config.Ranges[2].rng = talk
         JNVoiceMod.Config.Ranges[3].rng = yell
+        JNVoiceMod.Config.Language = ((JNVoiceMod.Lang[lang] and lang) or "EN-en")
         JNVoiceMod.Config.GlobalVoice = globalvoice
 
         JNVoiceMod:SaveConfig()
