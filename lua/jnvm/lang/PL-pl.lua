@@ -19,4 +19,11 @@ JNVoiceMod.Lang["PL-pl"] = {
     ["blue"] = "B (0-255)",
     ["suprise!"] = "Pięknie wykorzystane miejsce :>",
     ["clickcolor"] = "Ustaw kolor",
+    ["hudenabled"] = "Stan HUDa",
+    ["ishudenabled"] = "Czy HUD ma być włączony?",
+    ["hudAlphaIdle"] = "Alfa HUDa podczas spoczynku",
+    ["hudAlphaTalk"] = "Alfa HUDa podczas rozmowy",
+    ["hudAlphaMode"] = "Alfa HUDa podczas zmianu trybu",
+    ["sphereenabled"] = "Stan sfera rozmowy",
+    ["issphereenabled"] = "Czy sfera rozmowy ma być włączona?",
 }

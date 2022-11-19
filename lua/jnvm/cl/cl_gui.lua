@@ -6,6 +6,67 @@ function JNVoiceMod:isColor(val)
 
 end
 
+// --------------------------- CUSTOM SLIDER --------------------------- \\
+local PANEL = {}
+
+JNVoiceMod:CreateFont("slider",25)
+
+function PANEL:Init()
+	self.percentage = false
+
+	self.Paint = function(s,w,h) end
+
+	self.Scratch:SetVisible( false )
+	self.Label:SetVisible( false )
+	self:SetDecimals( 0 )
+	local textArea = self.TextArea
+	textArea:Dock(LEFT)
+	textArea:DockMargin(0,0,4,0)
+	textArea:SetFont("JNVoiceMod.slider")
+	textArea:SetTextColor(JNVoiceMod.clgui.text.primary)
+	textArea.PaintOver = function(s,w,h)
+		if self.percentage then
+			surface.SetFont(s:GetFont())
+			local x,_ = surface.GetTextSize(tostring(math.Round(self:GetValue())))
+			draw.SimpleText("%",s:GetFont(),4+x,h*.5,s:GetTextColor(),TEXT_ALIGN_LEFT,TEXT_ALIGN_CENTER)
+		end
+		draw.RoundedBox(6,0,0,w,h,JNVoiceMod.clgui.colors.blended)
+	end
+	local slider = self.Slider
+	slider.PaintOver = function(s,w,h)
+		draw.RoundedBox(6,0,0,w,h,JNVoiceMod.clgui.colors.blended)
+	end
+	slider.Knob.Paint = function(s,w,h)
+		draw.RoundedBox(6,0,0,w*.5,h,JNVoiceMod.ClConfig.GuiColor)
+	end
+end
+
+function PANEL:PerformLayout()
+
+	local decimals = self:GetDecimals()
+	local str = (decimals > 0 and "." or "")
+	str = str .. (self.percentage and "%" or "")
+	for i = 1, decimals do 
+		str = str.."0"
+	end
+	surface.SetFont("JNVoiceMod.slider")
+	local x,_ = surface.GetTextSize(tostring(self:GetMax())..str)
+	self.TextArea:SetWide(x+8)
+
+end
+
+function PANEL:Percentage(bool)
+	self.percentage = bool
+	if bool then
+		self:SetMinMax(0,100)
+		self:InvalidateLayout()
+	end
+end
+
+
+vgui.Register("JNVoiceMod.slider",PANEL,"DNumSlider")
+
+
 // --------------------------- CUSTOM CHECKBOX --------------------------- \\
 
 local PANEL = {}
@@ -85,8 +146,8 @@ function PANEL:Init()
 	local once = true
 	self.Think = function(s)
 		if s:IsMenuOpen() and once then
-			local color = JNVoiceMod.ClConfig.GuiColor
-			color.a = 20
+			local color = table.Copy(JNVoiceMod.ClConfig.GuiColor)
+			color.a = 5
 			
 			s.Menu:SetPaintBackground(false)
 			s.Menu:SetDrawBorder( false )
@@ -127,7 +188,7 @@ function PANEL:Init()
 	self.redPicker = self:Add("DTextEntry")
 	local redPicker = self.redPicker
 	redPicker:Dock(LEFT)
-	redPicker:DockMargin(8,0,0,0)
+	redPicker:DockMargin(0,0,0,0)
 	redPicker:SetText(JNVoiceMod.ClConfig.GuiColor.r)	
 	redPicker:SetNumeric(true)
 	redPicker:SetPaintBorderEnabled(false)
@@ -250,7 +311,8 @@ function PANEL:Init()
 		colorFrame.parent = s	// have to use that cuz' im creating a frame without a default parent look 2 lines up
 		colorFrame:SetSize(200,200)
 		colorFrame:MakePopup()
-		colorFrame:Center()
+		local x,y = colorFrame.parent:LocalToScreen()
+		colorFrame:SetPos(x+5+colorFrame.parent:GetWide(),y)
 		colorFrame:SetTitle(JNVoiceMod:GetPhrase("guiColor"))
 		colorFrame.Think = function(s)
 			if not IsValid(s.parent) then s:Remove() end	// remove this frame when parent dissapears eg. after using jnvmfixgui 
@@ -265,8 +327,8 @@ function PANEL:Init()
 		local body = colorFrame.body
 		body:Dock(FILL)
 		body.Paint = function(s,w,h)
-			local color = JNVoiceMod.ClConfig.GuiColor
-			color.a = 15	// todo 5
+			local color = table.Copy(JNVoiceMod.ClConfig.GuiColor)
+			color.a = 15
 			
 			draw.RoundedBoxEx(6,0,0,w,h,JNVoiceMod.clgui.colors.secondary,false,false,true,true)
 			draw.RoundedBoxEx(6,0,0,w,h,color,false,false,true,true)
@@ -323,7 +385,7 @@ function PANEL:Init()
 	local header = self.header
     header:Dock(TOP)
     header.Paint = function (panel,w,h)
-		local color = JNVoiceMod.ClConfig.GuiColor
+		local color = table.Copy(JNVoiceMod.ClConfig.GuiColor)
 		color.a = 20
         draw.RoundedBoxEx(6,0,0,w,h,JNVoiceMod.clgui.colors.primary,true,true,false,false)
 		draw.RoundedBox(0,0,0,w,h,color)
@@ -393,7 +455,7 @@ JNVoiceMod:CreateFont("submit",35)
 function PANEL:Init()
 
 	self.Paint = function(s,w,h)
-		local color = JNVoiceMod.ClConfig.GuiColor
+		local color = table.Copy(JNVoiceMod.ClConfig.GuiColor)
 		color.a = 20
 		
 		draw.RoundedBoxEx(6,0,0,w,h,JNVoiceMod.clgui.colors.primary,false,false,true,true)
@@ -485,7 +547,7 @@ local PANEL = {}
 function PANEL:Init()
 	
 	self.Paint = function(s,w,h)
-		local color = JNVoiceMod.ClConfig.GuiColor
+		local color = table.Copy(JNVoiceMod.ClConfig.GuiColor)
 		color.a = 5
 		
 		draw.RoundedBox(0,0,0,w,h,JNVoiceMod.clgui.colors.secondary)
@@ -642,7 +704,7 @@ vgui.Register("JNVoiceMod.adminBody",PANEL)
 local PANEL = {}
 function PANEL:Init()
 	self.Paint = function(s,w,h)
-		local color = JNVoiceMod.ClConfig.GuiColor
+		local color = table.Copy(JNVoiceMod.ClConfig.GuiColor)
 		color.a = 5
 		
 		draw.RoundedBox(0,0,0,w,h,JNVoiceMod.clgui.colors.secondary)
@@ -672,7 +734,7 @@ function PANEL:Init()
 	self.langComboBox = self:Add("NJVoiceMod.ComboBox")
 	local langComboBox = self.langComboBox
 	langComboBox:Dock(TOP)
-	langComboBox:DockMargin(8,0,8,8)
+	langComboBox:DockMargin(8,4,8,0)
 	langComboBox:SetFont("JNVoiceMod.header")
 
 	local i = 1
@@ -683,12 +745,94 @@ function PANEL:Init()
 		i = i + 1
 	end
 
+	self.hudEnabledLabel = self:Add("DLabel")
+	local hudEnabledLabel = self.hudEnabledLabel
+	hudEnabledLabel:Dock(TOP)
+	hudEnabledLabel:DockMargin(8,8,8,0)
+	hudEnabledLabel:SetText(JNVoiceMod:GetPhrase("hudenabled"))
+	hudEnabledLabel:SetFont("JNVoiceMod.header")
+
+	self.hudEnabledCheckbox = self:Add("JNVoiceMod.checkBox")
+	local checkbox = self.hudEnabledCheckbox
+	checkbox:SetText(JNVoiceMod:GetPhrase("ishudenabled"))
+	checkbox:Dock(TOP)
+	checkbox:DockMargin(8,4,8,8)
+	checkbox:SetFont("JNVoiceMod.header")
+	checkbox:SetValue( JNVoiceMod.ClConfig.HudEnabled )
+
+
+	self.hudAlphaIdleLabel = self:Add("DLabel")
+	local hudAlphaIdleLabel = self.hudAlphaIdleLabel
+	hudAlphaIdleLabel:Dock(TOP)
+	hudAlphaIdleLabel:DockMargin(8,8,8,0)
+	hudAlphaIdleLabel:SetText(JNVoiceMod:GetPhrase("hudAlphaIdle"))
+	hudAlphaIdleLabel:SetFont("JNVoiceMod.header")
+
+	self.hudAlphaIdle = self:Add("JNVoiceMod.slider")
+	local hudAlphaIdle = self.hudAlphaIdle
+	hudAlphaIdle:Dock(TOP)
+	hudAlphaIdle:DockMargin(8,4,8,0)
+	hudAlphaIdle:Percentage(true)
+	hudAlphaIdle:SetValue(JNVoiceMod.ClConfig.IdleAlpha*100)
+	hudAlphaIdle:SetDefaultValue(JNVoiceMod.ClConfig.IdleAlpha*100)
+
+	self.hudAlphaTalkLabel = self:Add("DLabel")
+	local hudAlphaTalkLabel = self.hudAlphaTalkLabel
+	hudAlphaTalkLabel:Dock(TOP)
+	hudAlphaTalkLabel:DockMargin(8,8,8,0)
+	hudAlphaTalkLabel:SetText(JNVoiceMod:GetPhrase("hudAlphaTalk"))
+	hudAlphaTalkLabel:SetFont("JNVoiceMod.header")
+
+	self.hudAlphaTalk = self:Add("JNVoiceMod.slider")
+	local hudAlphaTalk = self.hudAlphaTalk
+	hudAlphaTalk:Dock(TOP)
+	hudAlphaTalk:DockMargin(8,4,8,0)
+	hudAlphaTalk:Percentage(true)
+	hudAlphaTalk:SetValue(JNVoiceMod.ClConfig.TalkAlpha*100)
+	hudAlphaTalk:SetDefaultValue(JNVoiceMod.ClConfig.TalkAlpha*100)
+
+	self.hudAlphaModeLabel = self:Add("DLabel")
+	local hudAlphaModeLabel = self.hudAlphaModeLabel
+	hudAlphaModeLabel:Dock(TOP)
+	hudAlphaModeLabel:DockMargin(8,8,8,0)
+	hudAlphaModeLabel:SetText(JNVoiceMod:GetPhrase("hudAlphaMode"))
+	hudAlphaModeLabel:SetFont("JNVoiceMod.header")
+
+	self.hudAlphaMode = self:Add("JNVoiceMod.slider")
+	local hudAlphaMode = self.hudAlphaMode
+	hudAlphaMode:Dock(TOP)
+	hudAlphaMode:DockMargin(8,4,8,0)
+	hudAlphaMode:Percentage(true)
+	hudAlphaMode:SetValue(JNVoiceMod.ClConfig.ChngAlpha*100)
+	hudAlphaMode:SetDefaultValue(JNVoiceMod.ClConfig.ChngAlpha*100)
+	
+	// TALK SPHERE ENABLED
+	self.sphereEnabledLabel = self:Add("DLabel")
+	local sphereEnabledLabel = self.sphereEnabledLabel
+	sphereEnabledLabel:Dock(TOP)
+	sphereEnabledLabel:DockMargin(8,8,8,0)
+	sphereEnabledLabel:SetText(JNVoiceMod:GetPhrase("sphereenabled"))
+	sphereEnabledLabel:SetFont("JNVoiceMod.header")
+
+	self.sphereEnabledCheckbox = self:Add("JNVoiceMod.checkBox")
+	local checkbox = self.sphereEnabledCheckbox
+	checkbox:SetText(JNVoiceMod:GetPhrase("issphereenabled"))
+	checkbox:Dock(TOP)
+	checkbox:DockMargin(8,4,8,8)
+	checkbox:SetFont("JNVoiceMod.header")
+	checkbox:SetValue( JNVoiceMod.ClConfig.SphereEnabled )
+
+
+
 
 end
 
 function PANEL:PerformLayout()
 
 	self.colorPicker:SetTall(30)
+	self.hudAlphaIdle:SetTall(30)
+	self.hudAlphaTalk:SetTall(30)
+	self.hudAlphaMode:SetTall(30)
 
 end
 
@@ -778,6 +922,14 @@ function JNVoiceMod:OpenClConfig()
 		JNVoiceMod.ClConfig.GuiColor = color
 		local _lang,data = s:GetParent().body.langComboBox:GetSelected()
 		JNVoiceMod.ClConfig.Lang = ((JNVoiceMod.Lang[data] and data) or "EN-en")
+
+		JNVoiceMod.ClConfig.IdleAlpha = s:GetParent().body.hudAlphaIdle:GetValue()/100
+		JNVoiceMod.ClConfig.TalkAlpha = s:GetParent().body.hudAlphaTalk:GetValue()/100
+		JNVoiceMod.ClConfig.ChngAlpha = s:GetParent().body.hudAlphaMode:GetValue()/100
+		
+		JNVoiceMod.ClConfig.HudEnabled = s:GetParent().body.hudEnabledCheckbox:GetChecked()
+
+
 		JNVoiceMod:ClConfigSave()
 		JNVoiceMod.ClConfig.frame:Remove() 
 	end
@@ -1096,7 +1248,3 @@ hook.Add( "HUDPaint", "JNVMHud", function()
 		surface.DrawTexturedRect(w*.5-bwt*.5+bw*.27,h*.9,bwt,bht)
 	end
 end )
-
-
-
-JNVoiceMod:OpenClConfig()

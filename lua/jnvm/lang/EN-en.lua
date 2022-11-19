@@ -19,4 +19,11 @@ JNVoiceMod.Lang["EN-en"] = {
     ["blue"] = "B (0-255)",
     ["suprise!"] = "Efficiently wasted space :>",
     ["clickcolor"] = "Click to set",
+    ["hudenabled"] = "HUD state",
+    ["ishudenabled"] = "Is HUD enabled?",
+    ["hudAlphaIdle"] = "HUD's alpha when idle",
+    ["hudAlphaTalk"] = "HUD's alpha when talking",
+    ["hudAlphaMode"] = "HUD's alpha when changing modes",
+    ["sphereenabled"] = "Talk sphere state",
+    ["issphereenabled"] = "Is talk sphere enabled?",
 }
