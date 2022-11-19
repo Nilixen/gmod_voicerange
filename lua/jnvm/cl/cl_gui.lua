@@ -1,3 +1,11 @@
+function JNVoiceMod:isColor(val)
+
+	if isnumber(tonumber(val)) then
+		return (tonumber(val) >=0 and tonumber(val) <=255)
+	end
+
+end
+
 // --------------------------- CUSTOM CHECKBOX --------------------------- \\
 
 local PANEL = {}
@@ -51,9 +59,8 @@ function PANEL:GetChecked()
 	return self.button:GetChecked()
 end
 
-  
-
 vgui.Register("JNVoiceMod.checkBox",PANEL)
+
 
 // --------------------------- CUSTOM COMBOBOX --------------------------- \\
 local PANEL = {}
@@ -117,11 +124,10 @@ JNVoiceMod:CreateFont("colorpicker",25)
 JNVoiceMod:CreateFont("colorpickerplaceholder",12,2000)
 
 function PANEL:Init()
-	// todo fix this shit
 	self.redPicker = self:Add("DTextEntry")
 	local redPicker = self.redPicker
 	redPicker:Dock(LEFT)
-	redPicker:DockMargin(8,16,0,16)
+	redPicker:DockMargin(8,0,0,0)
 	redPicker:SetText(JNVoiceMod.ClConfig.GuiColor.r)	
 	redPicker:SetNumeric(true)
 	redPicker:SetPaintBorderEnabled(false)
@@ -139,10 +145,10 @@ function PANEL:Init()
 	end
 	redPicker.Think = function(s)
 		local val = tonumber(s:GetValue())
-		if ((isnumber(val) and val or 0) < 0) or ((isnumber(val) and val or 256) > 255) then
-			s.color = JNVoiceMod.clgui.text.red
-		else
+		if (JNVoiceMod:isColor(val)) then
 			s.color = JNVoiceMod.clgui.text.primary
+		else
+			s.color = JNVoiceMod.clgui.text.red
 		end
 		redPicker:SetTextColor(redPicker.color)
 	end
@@ -150,7 +156,7 @@ function PANEL:Init()
 	self.greenPicker = self:Add("DTextEntry")
 	local greenPicker = self.greenPicker
 	greenPicker:Dock(LEFT)
-	greenPicker:DockMargin(8,16,0,16)	
+	greenPicker:DockMargin(8,0,0,0)	
 	greenPicker:SetText(JNVoiceMod.ClConfig.GuiColor.g)	
 	greenPicker:SetNumeric(true)
 	greenPicker:SetPaintBorderEnabled(false)
@@ -168,10 +174,10 @@ function PANEL:Init()
 	end
 	greenPicker.Think = function(s)
 		local val = tonumber(s:GetValue())
-		if ((isnumber(val) and val or 0) < 0) or ((isnumber(val) and val or 256) > 255) then
-			s.color = JNVoiceMod.clgui.text.red
-		else
+		if (JNVoiceMod:isColor(val)) then
 			s.color = JNVoiceMod.clgui.text.primary
+		else
+			s.color = JNVoiceMod.clgui.text.red
 		end
 		greenPicker:SetTextColor(greenPicker.color)
 	end
@@ -179,7 +185,7 @@ function PANEL:Init()
 	self.bluePicker = self:Add("DTextEntry")
 	local bluePicker = self.bluePicker
 	bluePicker:Dock(LEFT)
-	bluePicker:DockMargin(8,16,0,16)	
+	bluePicker:DockMargin(8,0,0,0)	
 	bluePicker:SetText(JNVoiceMod.ClConfig.GuiColor.b)	
 	bluePicker:SetNumeric(true)
 	bluePicker:SetPaintBorderEnabled(false)
@@ -197,16 +203,98 @@ function PANEL:Init()
 	end
 	bluePicker.Think = function(s)
 		local val = tonumber(s:GetValue())
-		if ((isnumber(val) and val or 0) < 0) or ((isnumber(val) and val or 256) > 255) then
-			s.color = JNVoiceMod.clgui.text.red
-		else
+		if (JNVoiceMod:isColor(val)) then
 			s.color = JNVoiceMod.clgui.text.primary
+		else
+			s.color = JNVoiceMod.clgui.text.red
 		end
 		bluePicker:SetTextColor(bluePicker.color)
 	end
 
+	self.newColorPanel = self:Add("DButton")
+	local newColorPanel = self.newColorPanel
+	newColorPanel:SetText("")
+	newColorPanel:Dock(LEFT)
+	newColorPanel:DockMargin(8,0,0,0)	
+	newColorPanel.fill = 0
+	newColorPanel.tempo = 5
+	newColorPanel.color = JNVoiceMod.ClConfig.GuiColor
+	
+	newColorPanel.Paint = function(s,w,h)
+		draw.RoundedBox(6,0,0,w,h,JNVoiceMod.clgui.colors.blended)
+		if (isnumber(tonumber(self.redPicker:GetValue())) and isnumber(tonumber(self.greenPicker:GetValue())) and isnumber(tonumber(self.bluePicker:GetValue()))) then
+			s.color = {
+				r=tonumber(self.redPicker:GetValue()),
+				g=tonumber(self.greenPicker:GetValue()),
+				b=tonumber(self.bluePicker:GetValue()),
+			}
+		end
+		draw.RoundedBox(6,3,3,w-6,h-6,s.color)
+		
+		if s:IsHovered() then
+			s.fill = math.Clamp(Lerp(s.tempo*FrameTime(),s.fill,1.1),0,1)
+		else
+			s.fill = math.Clamp(Lerp(s.tempo*FrameTime(),s.fill,-0.1),0,1)
+		end
+		local color = table.Copy(JNVoiceMod.clgui.text.primary)	// copy the table with color to prevent from changing the color everywhere
+		color.a = s.fill*255
+		draw.SimpleText(JNVoiceMod:GetPhrase("clickcolor"),"JNVoiceMod.colorpicker",w*.5,h*.5,color,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+	end
+
+	newColorPanel.DoClick = function(s)
+		JNVoiceMod.ClConfig.frame:SetMouseInputEnabled(false)
+		JNVoiceMod.ClConfig.frame:SetKeyboardInputEnabled(false)
+		
+		s.colorFrame = vgui.Create("JNVoiceMod.frame")
+		local colorFrame = s.colorFrame
+		colorFrame.parent = s	// have to use that cuz' im creating a frame without a default parent look 2 lines up
+		colorFrame:SetSize(200,200)
+		colorFrame:MakePopup()
+		colorFrame:Center()
+		colorFrame:SetTitle(JNVoiceMod:GetPhrase("guiColor"))
+		colorFrame.Think = function(s)
+			if not IsValid(s.parent) then s:Remove() end	// remove this frame when parent dissapears eg. after using jnvmfixgui 
+		end
+		colorFrame.header.closeBtn.DoClick = function(s)
+			JNVoiceMod.ClConfig.frame:SetMouseInputEnabled(true)
+			JNVoiceMod.ClConfig.frame:SetKeyboardInputEnabled(true)
+			colorFrame:Remove()
+		end
+
+		colorFrame.body = colorFrame:Add("DPanel")
+		local body = colorFrame.body
+		body:Dock(FILL)
+		body.Paint = function(s,w,h)
+			local color = JNVoiceMod.ClConfig.GuiColor
+			color.a = 15	// todo 5
+			
+			draw.RoundedBoxEx(6,0,0,w,h,JNVoiceMod.clgui.colors.secondary,false,false,true,true)
+			draw.RoundedBoxEx(6,0,0,w,h,color,false,false,true,true)
+		end
+		
+		local color = {
+			r = tonumber(colorFrame.parent:GetParent().redPicker:GetValue()),
+			g = tonumber(colorFrame.parent:GetParent().greenPicker:GetValue()),
+			b = tonumber(colorFrame.parent:GetParent().bluePicker:GetValue()),
+			a = 255,
+		}
+		
+		colorFrame.body.ColorMixer = colorFrame.body:Add("DColorMixer")
+		local colorMixer = colorFrame.body.ColorMixer
+		colorMixer:Dock(FILL)
+		colorMixer:DockMargin(8,8,8,8)
+		colorMixer:SetPalette(false)
+		colorMixer:SetAlphaBar(false)
+		colorMixer:SetWangs(true)
+		colorMixer:SetColor(color)
+		colorMixer.ValueChanged = function(s,color)
+			colorFrame.parent:GetParent().redPicker:SetValue(tostring(color.r))
+			colorFrame.parent:GetParent().greenPicker:SetValue(tostring(color.g))
+			colorFrame.parent:GetParent().bluePicker:SetValue(tostring(color.b))
+		end
 
 
+	end
 
 end
 
@@ -215,12 +303,12 @@ function PANEL:PerformLayout()
 	self.redPicker:SetWide(45)
 	self.greenPicker:SetWide(45)
 	self.bluePicker:SetWide(45)
+	self.newColorPanel:SetWide(135)
 
 end
 
-
-
 vgui.Register("JNVoiceMod.colorPicker",PANEL)
+
 // --------------------------- FRAME --------------------------- \\
 
 local PANEL = {}
@@ -320,18 +408,18 @@ function PANEL:Init()
 	submitBtn:DockMargin(0,20,20,20)
 	submitBtn:SetText("")
 	submitBtn:SetEnabled(false)
-	submitBtn.parent = self
 	submitBtn.text = "Save"
 	submitBtn.text2 = "Submit"
 	submitBtn.xOffset,submitBtn.yOffset,submitBtn.xOffsetTarget,submitBtn.yOffsetTarget = 0,0,0,0
 	submitBtn.tick = 0
 	submitBtn.tempo = 1
+	submitBtn.speed = 1
 	submitBtn.Paint = function(s,w,h)
 		draw.RoundedBox(6,0,0,w,h,JNVoiceMod.clgui.colors.blended)
 		if s:IsHovered() then
-			s.tick = math.Clamp(s.tick + 10*FrameTime(),0,40)
+			s.tick = math.Clamp(s.tick + 10*FrameTime()*s.speed,0,40)
 		else
-			s.tick = math.Clamp(s.tick - 40*FrameTime(),0,40)
+			s.tick = math.Clamp(s.tick - 40*FrameTime()*s.speed,0,40)
 		end
 
 		s.xOffset = Lerp(s.tempo*5*FrameTime(),s.xOffset,s.xOffsetTarget)
@@ -375,7 +463,7 @@ function PANEL:Init()
 	local wastedspace = self.wastedspace
 	wastedspace:DockMargin(8,8,8,8)
 	wastedspace:Dock(LEFT)
-	wastedspace:SetText("Efficiently wasted space :>")
+	wastedspace:SetText(JNVoiceMod:GetPhrase("suprise!"))
 	wastedspace:SetFont("JNVoiceMod.submit")
 	wastedspace:SetTextColor(JNVoiceMod.clgui.text.blended)
 
@@ -574,12 +662,33 @@ function PANEL:Init()
 	colorPicker:Dock(TOP)
 	colorPicker:DockMargin(8,4,8,0)
 
+	self.langLabel = self:Add("DLabel")
+	local langLabel = self.langLabel
+	langLabel:Dock(TOP)
+	langLabel:DockMargin(8,8,8,0)
+	langLabel:SetText(JNVoiceMod:GetPhrase("clientLanguage"))
+	langLabel:SetFont("JNVoiceMod.header")
+
+	self.langComboBox = self:Add("NJVoiceMod.ComboBox")
+	local langComboBox = self.langComboBox
+	langComboBox:Dock(TOP)
+	langComboBox:DockMargin(8,0,8,8)
+	langComboBox:SetFont("JNVoiceMod.header")
+
+	local i = 1
+	for k,v in pairs(JNVoiceMod.Lang) do
+		langComboBox:AddChoice(v.lang,k)
+		if JNVoiceMod.ClConfig.Lang == k then langComboBox:ChooseOptionID(i)
+		end
+		i = i + 1
+	end
+
 
 end
 
 function PANEL:PerformLayout()
 
-	self.colorPicker:SetTall(70)
+	self.colorPicker:SetTall(30)
 
 end
 
@@ -604,19 +713,19 @@ function JNVoiceMod:OpenConfigMenu()
 	footer.submitBtn.text2 = JNVoiceMod:GetPhrase("submit")
 
 	footer.submitBtn.check = function(s)
-		return (tonumber(s.parent.body.whisperSlider:GetValue()) <= 0 or
-		tonumber(s.parent.body.talkSlider:GetValue()) <= 0 or 
-		tonumber(s.parent.body.yellSlider:GetValue()) <= 0 ) 
+		return (tonumber(s:GetParent().body.whisperSlider:GetValue()) <= 0 or
+		tonumber(s:GetParent().body.talkSlider:GetValue()) <= 0 or 
+		tonumber(s:GetParent().body.yellSlider:GetValue()) <= 0 ) 
 	end
 	footer.submitBtn.DoClick = function(s)
-		local _lang,data = s.parent.body.langComboBox:GetSelected()
+		local _lang,data = s:GetParent().body.langComboBox:GetSelected()
 		net.Start("jnvm_network")
 			net.WriteInt(1,16)
-			net.WriteInt(s.parent.body.whisperSlider:GetValue(),16)
-			net.WriteInt(s.parent.body.talkSlider:GetValue(),16)
-			net.WriteInt(s.parent.body.yellSlider:GetValue(),16)
+			net.WriteInt(s:GetParent().body.whisperSlider:GetValue(),16)
+			net.WriteInt(s:GetParent().body.talkSlider:GetValue(),16)
+			net.WriteInt(s:GetParent().body.yellSlider:GetValue(),16)
 			net.WriteString(data)
-			net.WriteBool(s.parent.body.globalVoiceCheckbox:GetChecked())
+			net.WriteBool(s:GetParent().body.globalVoiceCheckbox:GetChecked())
 		net.SendToServer()
 		if IsValid(JNVoiceMod.ClConfig.frame) then JNVoiceMod.ClConfig.frame:Remove() end
 	end
@@ -644,14 +753,34 @@ function JNVoiceMod:OpenClConfig()
 
 	// bottom toolbox
 	frame.footer = frame:Add("JNVoiceMod.footer")
-	local footer = frame.footer 
+	local footer = frame.footer
 	footer:Dock(BOTTOM)
 	footer.submitBtn.text = JNVoiceMod:GetPhrase("save")
 	footer.submitBtn.text2 = JNVoiceMod:GetPhrase("submit")
+	footer.submitBtn.speed = 3
 	footer.submitBtn.check = function(s)
-		return false
+		local colorPicker = s:GetParent().body.colorPicker
+		local redPicker = colorPicker.redPicker
+		local greenPicker = colorPicker.greenPicker
+		local bluePicker = colorPicker.bluePicker
+		if  JNVoiceMod:isColor(redPicker:GetValue()) and JNVoiceMod:isColor(greenPicker:GetValue()) and JNVoiceMod:isColor(bluePicker:GetValue()) then
+			return false
+		end
+		return true
 	end
-	--footer.submitBtn.DoClick = function(s) end
+	footer.submitBtn.DoClick = function(s)
+		local colorPicker = s:GetParent().body.colorPicker
+		local color = {
+			r=tonumber(colorPicker.redPicker:GetValue()),
+			g=tonumber(colorPicker.greenPicker:GetValue()),
+			b=tonumber(colorPicker.bluePicker:GetValue()),
+		}
+		JNVoiceMod.ClConfig.GuiColor = color
+		local _lang,data = s:GetParent().body.langComboBox:GetSelected()
+		JNVoiceMod.ClConfig.Lang = ((JNVoiceMod.Lang[data] and data) or "EN-en")
+		JNVoiceMod:ClConfigSave()
+		JNVoiceMod.ClConfig.frame:Remove() 
+	end
 	
 	// main body
 	frame.body = frame:Add("JNVoiceMod.clientBody")
@@ -970,4 +1099,4 @@ end )
 
 
 
-//JNVoiceMod:OpenClConfig()
+JNVoiceMod:OpenClConfig()

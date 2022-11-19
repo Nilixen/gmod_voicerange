@@ -17,4 +17,6 @@ JNVoiceMod.Lang["PL-pl"] = {
     ["red"] = "R (0-255)",
     ["green"] = "G (0-255)",
     ["blue"] = "B (0-255)",
+    ["suprise!"] = "Pięknie wykorzystane miejsce :>",
+    ["clickcolor"] = "Ustaw kolor",
 }

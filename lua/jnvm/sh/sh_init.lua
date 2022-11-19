@@ -18,7 +18,3 @@ function JNVoiceMod:GetPhrase(name,ply,...)
 		end
 	end
 end
-function JNVoiceMod:ComposeFunctions(f1, f2)
-	return function(...) return f1(f2(...)) end
-  end
-  
