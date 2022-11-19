@@ -14,4 +14,8 @@ JNVoiceMod.Lang["EN-en"] = {
     ["serverLanguage"] = "Server language",
     ["clientLanguage"] = "Client language",
     ["guiColor"] = "GUI Color",
+    ["red"] = "R (0-255)",
+    ["green"] = "G (0-255)",
+    ["blue"] = "B (0-255)",
+    
 }

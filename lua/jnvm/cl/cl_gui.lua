@@ -113,29 +113,33 @@ vgui.Register("NJVoiceMod.ComboBox",PANEL,"DComboBox")
 // --------------------------- CUSTOM COLOR PICKER --------------------------- \\
 local PANEL = {}
 
-JNVoiceMod:CreateFont("colorpicker",25,1500)
+JNVoiceMod:CreateFont("colorpicker",25)
+JNVoiceMod:CreateFont("colorpickerplaceholder",12,2000)
 
 function PANEL:Init()
 	// todo fix this shit
 	self.redPicker = self:Add("DTextEntry")
 	local redPicker = self.redPicker
 	redPicker:Dock(LEFT)
-	redPicker:DockMargin(8,16,8,16)
-	redPicker:SetText(JNVoiceMod.Config.Ranges[1].rng)	
+	redPicker:DockMargin(8,16,0,16)
+	redPicker:SetText(JNVoiceMod.ClConfig.GuiColor.r)	
 	redPicker:SetNumeric(true)
 	redPicker:SetPaintBorderEnabled(false)
 	redPicker:SetPaintBackground(false)
-	redPicker:SetFont("JNVoiceMod.colorpicker")
 	redPicker.color = JNVoiceMod.clgui.text.primary
 	redPicker:SetTextColor(redPicker.color)
+	redPicker:SetFont("JNVoiceMod.colorpicker")
 	redPicker.PaintOver = function(s,w,h)
 		surface.SetFont("JNVoiceMod.header")
 		local x,y = surface.GetTextSize(s:GetValue())
 		draw.RoundedBox(6,0,0,w,h,JNVoiceMod.clgui.colors.blended)
+		if s:GetValue() == "" then
+			draw.SimpleText(JNVoiceMod:GetPhrase("red"),"JNVoiceMod.colorpickerplaceholder",w*.5,h*.5,JNVoiceMod.clgui.text.combobox,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+		end
 	end
 	redPicker.Think = function(s)
 		local val = tonumber(s:GetValue())
-		if ((isnumber(val) and val or 0) <= 0) and ((isnumber(val) and val or 256) > 255) then
+		if ((isnumber(val) and val or 0) < 0) or ((isnumber(val) and val or 256) > 255) then
 			s.color = JNVoiceMod.clgui.text.red
 		else
 			s.color = JNVoiceMod.clgui.text.primary
@@ -143,8 +147,78 @@ function PANEL:Init()
 		redPicker:SetTextColor(redPicker.color)
 	end
 
+	self.greenPicker = self:Add("DTextEntry")
+	local greenPicker = self.greenPicker
+	greenPicker:Dock(LEFT)
+	greenPicker:DockMargin(8,16,0,16)	
+	greenPicker:SetText(JNVoiceMod.ClConfig.GuiColor.g)	
+	greenPicker:SetNumeric(true)
+	greenPicker:SetPaintBorderEnabled(false)
+	greenPicker:SetPaintBackground(false)
+	greenPicker.color = JNVoiceMod.clgui.text.primary
+	greenPicker:SetTextColor(greenPicker.color)
+	greenPicker:SetFont("JNVoiceMod.colorpicker")
+	greenPicker.PaintOver = function(s,w,h)
+		surface.SetFont("JNVoiceMod.header")
+		local x,y = surface.GetTextSize(s:GetValue())
+		draw.RoundedBox(6,0,0,w,h,JNVoiceMod.clgui.colors.blended)
+		if s:GetValue() == "" then
+			draw.SimpleText(JNVoiceMod:GetPhrase("green"),"JNVoiceMod.colorpickerplaceholder",w*.5,h*.5,JNVoiceMod.clgui.text.combobox,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+		end
+	end
+	greenPicker.Think = function(s)
+		local val = tonumber(s:GetValue())
+		if ((isnumber(val) and val or 0) < 0) or ((isnumber(val) and val or 256) > 255) then
+			s.color = JNVoiceMod.clgui.text.red
+		else
+			s.color = JNVoiceMod.clgui.text.primary
+		end
+		greenPicker:SetTextColor(greenPicker.color)
+	end
+
+	self.bluePicker = self:Add("DTextEntry")
+	local bluePicker = self.bluePicker
+	bluePicker:Dock(LEFT)
+	bluePicker:DockMargin(8,16,0,16)	
+	bluePicker:SetText(JNVoiceMod.ClConfig.GuiColor.b)	
+	bluePicker:SetNumeric(true)
+	bluePicker:SetPaintBorderEnabled(false)
+	bluePicker:SetPaintBackground(false)
+	bluePicker.color = JNVoiceMod.clgui.text.primary
+	bluePicker:SetTextColor(bluePicker.color)
+	bluePicker:SetFont("JNVoiceMod.colorpicker")
+	bluePicker.PaintOver = function(s,w,h)
+		surface.SetFont("JNVoiceMod.header")
+		local x,y = surface.GetTextSize(s:GetValue())
+		draw.RoundedBox(6,0,0,w,h,JNVoiceMod.clgui.colors.blended)
+		if s:GetValue() == "" then
+			draw.SimpleText(JNVoiceMod:GetPhrase("blue"),"JNVoiceMod.colorpickerplaceholder",w*.5,h*.5,JNVoiceMod.clgui.text.combobox,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+		end
+	end
+	bluePicker.Think = function(s)
+		local val = tonumber(s:GetValue())
+		if ((isnumber(val) and val or 0) < 0) or ((isnumber(val) and val or 256) > 255) then
+			s.color = JNVoiceMod.clgui.text.red
+		else
+			s.color = JNVoiceMod.clgui.text.primary
+		end
+		bluePicker:SetTextColor(bluePicker.color)
+	end
+
+
+
 
 end
+
+function PANEL:PerformLayout()
+
+	self.redPicker:SetWide(45)
+	self.greenPicker:SetWide(45)
+	self.bluePicker:SetWide(45)
+
+end
+
+
 
 vgui.Register("JNVoiceMod.colorPicker",PANEL)
 // --------------------------- FRAME --------------------------- \\

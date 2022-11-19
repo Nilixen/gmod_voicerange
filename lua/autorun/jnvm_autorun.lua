@@ -3,8 +3,9 @@ if SERVER or game.SinglePlayer() then
 	// sh
 		AddCSLuaFile("jnvm/sh/sh_init.lua")
 		include("jnvm/sh/sh_init.lua")
+		AddCSLuaFile("jnvm/sh/sh_config.lua")
+		include("jnvm/sh/sh_config.lua")
 	// sv
-		include("jnvm/sv/sv_config.lua")
 		include("jnvm/sv/sv_init.lua")
 		include("jnvm/sv/sv_network.lua")
 	// cl
@@ -17,6 +18,7 @@ end
 if CLIENT then
 	// sh
 		include("jnvm/sh/sh_init.lua")
+		include("jnvm/sh/sh_config.lua")
 	//cl
 		include("jnvm/cl/cl_init.lua")
 		include("jnvm/cl/cl_defconfig.lua")
