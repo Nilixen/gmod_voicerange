@@ -710,6 +710,14 @@ function PANEL:Init()
 		draw.RoundedBox(0,0,0,w,h,JNVoiceMod.clgui.colors.secondary)
 		draw.RoundedBox(0,0,0,w,h,color)
 	end
+	local vbar = self:GetVBar()
+	vbar.Paint = function(s,w,h) end
+	vbar:SetHideButtons(true)
+
+	vbar.btnGrip.Paint = function(s,w,h)
+		draw.RoundedBox(6,0,0,w*.5,h,JNVoiceMod.ClConfig.GuiColor)
+		draw.RoundedBox(6,0,0,w*.5,h,JNVoiceMod.clgui.colors.blended)
+	end
 
 	// color picker
 	self.guiColorLabel = self:Add("DLabel")
@@ -823,7 +831,31 @@ function PANEL:Init()
 	checkbox:SetValue( JNVoiceMod.ClConfig.SphereEnabled )
 
 
+	self.sphereLabel = self:Add("DLabel")
+	local sphereLabel = self.sphereLabel
+	sphereLabel:Dock(TOP)
+	sphereLabel:DockMargin(8,8,8,0)
+	sphereLabel:SetText(JNVoiceMod:GetPhrase("sphereAlpha"))
+	sphereLabel:SetFont("JNVoiceMod.header")
 
+	self.sphereAlpha = self:Add("JNVoiceMod.slider")
+	local sphereAlpha = self.sphereAlpha
+	sphereAlpha:Dock(TOP)
+	sphereAlpha:DockMargin(8,4,8,0)
+	sphereAlpha:Percentage(true)
+	sphereAlpha:SetValue(JNVoiceMod.ClConfig.SphereAlpha*100)
+	sphereAlpha:SetDefaultValue(JNVoiceMod.ClConfig.SphereAlpha*100)
+
+	for i=1,10 do
+		
+		self.sphereLabel = self:Add("DLabel")
+		local sphereLabel = self.sphereLabel
+		sphereLabel:Dock(TOP)
+		sphereLabel:DockMargin(8,8,8,0)
+		sphereLabel:SetText(JNVoiceMod:GetPhrase("sphereAlpha"))
+		sphereLabel:SetFont("JNVoiceMod.header")
+
+	end
 
 end
 
@@ -836,7 +868,7 @@ function PANEL:PerformLayout()
 
 end
 
-vgui.Register("JNVoiceMod.clientBody",PANEL)
+vgui.Register("JNVoiceMod.clientBody",PANEL,"DScrollPanel")
 
 // Admin config menu, accesible via jnvmconfigmenu 
 function JNVoiceMod:OpenConfigMenu()

@@ -26,4 +26,5 @@ JNVoiceMod.Lang["EN-en"] = {
     ["hudAlphaMode"] = "HUD's alpha when changing modes",
     ["sphereenabled"] = "Talk sphere state",
     ["issphereenabled"] = "Is talk sphere enabled?",
+    ["sphereAlpha"] = "Talk sphere alpha",
 }

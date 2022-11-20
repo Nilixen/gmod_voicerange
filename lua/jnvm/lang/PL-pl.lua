@@ -26,4 +26,5 @@ JNVoiceMod.Lang["PL-pl"] = {
     ["hudAlphaMode"] = "Alfa HUDa podczas zmianu trybu",
     ["sphereenabled"] = "Stan sfera rozmowy",
     ["issphereenabled"] = "Czy sfera rozmowy ma być włączona?",
+    ["sphereAlpha"] = "Alfa sfery rozmowy",
 }
