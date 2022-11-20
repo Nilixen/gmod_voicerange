@@ -100,7 +100,8 @@ hook.Add("Think","JNVMBindCheck",function()
 	if radioBindPressed and pressedRadio == false then
 		pressedRadio = true
 		permissions.EnableVoiceChat( true )
-		sound.Play("jnvm/remote_start.wav",LocalPlayer():GetPos(),1,1,JNVoiceMod.ClConfig.RadioSounds)		//todo fix those sounds...
+		// change sound.play to csoundpatch todo
+		sound.Play("items/ammopickup.wav",LocalPlayer():GetPos(),100,100,JNVoiceMod.ClConfig.RadioSounds)		//todo fix those sounds...
 		net.Start("jnvm_network")
 			net.WriteInt(3,5)
 			net.WriteBool(true)
