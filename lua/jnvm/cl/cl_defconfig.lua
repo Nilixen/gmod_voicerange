@@ -8,6 +8,9 @@ JNVoiceMod.ClConfig.HudEnabled = true
 JNVoiceMod.ClConfig.SphereEnabled = true
 JNVoiceMod.ClConfig.SphereAlpha = 0.2
 JNVoiceMod.ClConfig.Bind = 17 // def G key - https://wiki.facepunch.com/gmod/Enums/KEY
+JNVoiceMod.ClConfig.BindRadio = 80 // def RSHIFT key - https://wiki.facepunch.com/gmod/Enums/KEY
+JNVoiceMod.ClConfig.RadioLoudness = 0.75
+JNVoiceMod.ClConfig.RadioSounds = 0.2
 JNVoiceMod.ClConfig.Lang = "EN-en"
 
 JNVoiceMod.ClConfig.GuiColor = Color(0,200,120)

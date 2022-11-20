@@ -27,4 +27,7 @@ JNVoiceMod.Lang["PL-pl"] = {
     ["sphereenabled"] = "Stan sfera rozmowy",
     ["issphereenabled"] = "Czy sfera rozmowy ma być włączona?",
     ["sphereAlpha"] = "Alfa sfery rozmowy",
+    ["bindChanger"] = "Przycisk przełączenia tryby rozmowy",
+    ["radioBindChanger"] = "Przycisk rozmowy przez radio",
+    
 }

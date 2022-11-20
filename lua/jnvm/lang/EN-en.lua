@@ -27,4 +27,7 @@ JNVoiceMod.Lang["EN-en"] = {
     ["sphereenabled"] = "Talk sphere state",
     ["issphereenabled"] = "Is talk sphere enabled?",
     ["sphereAlpha"] = "Talk sphere alpha",
+    ["bindChanger"] = "Talking mode bind",
+    ["radioBindChanger"] = "Radio bind",
+
 }

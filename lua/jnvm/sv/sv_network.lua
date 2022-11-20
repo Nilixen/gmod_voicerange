@@ -1,5 +1,5 @@
 net.Receive("jnvm_network",function(len, ply)
-    local num = net.ReadInt(16)
+    local num = net.ReadInt(5)
     if num == 1 then
         if not ply:IsSuperAdmin() then ply:ChatPrint("YOU'RE NOT AUTHORIZED TO DO THAT!") return end
         local whisper = net.ReadInt(16)
@@ -22,32 +22,19 @@ net.Receive("jnvm_network",function(len, ply)
         if ply:GetNWInt("JNVoiceModDist") > 3 then
             ply:SetNWInt("JNVoiceModDist",1)
         end
-        JNVoiceMod:SyncPlayersData(1,ply)
+        
+    elseif num == 3 then    // talking on radio
+        local bool = net.ReadBool()
+        if bool then
+            ply.JNVMLastMode = ply:GetNWInt("JNVoiceModDist")
+            ply:SetNWInt("JNVoiceModDist",1)
+        else
+            local lastMode = ply.JNVMLastMode or 2
+            ply:SetNWInt("JNVoiceModDist",lastMode)
+        end
+        ply:SetNWBool("JNVoiceModRadio",bool)
+
     end
 end)
-
-function JNVoiceMod:SyncPlayersData(num,ply)
-     
-    if num == 1 then
-        local tbl = {}
-        tbl[ply:SteamID64()] = ply:GetNWInt("JNVoiceModDist",1)
-        net.Start("jnvm_network")
-            net.WriteInt(2,16)
-            net.WriteTable(tbl)
-        net.Broadcast()
-        //print(ply:Name().." broadcasted")
-    elseif num == 2 then
-        local tbl = {}
-        for k,v in pairs(player.GetAll()) do
-            tbl[v:SteamID64()] = v:GetNWInt("JNVoiceModDist",1)
-        end
-        net.Start("jnvm_network")
-            net.WriteInt(2,16)
-            net.WriteTable(tbl)
-        net.Send(ply)
-        //print("sent to "..ply:Name())
-    end
-
-end
 
 
