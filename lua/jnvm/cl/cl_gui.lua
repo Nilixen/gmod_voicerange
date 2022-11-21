@@ -1321,3 +1321,5 @@ hook.Add( "HUDPaint", "JNVMHud", function()
 		surface.DrawTexturedRect(w*.5-bwt*.5+bw*.27,h*.9,bwt,bht)
 	end
 end )
+
+

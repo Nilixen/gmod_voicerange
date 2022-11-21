@@ -165,3 +165,10 @@ hook.Add("Think","JNVMBindCheck",function()
 
 
 end)
+
+//test... works ... now implement it
+	
+hook.Add("PlayerStartVoice", "ImageOnVoice", function()
+	local radioSoundEffect = CreateSound(LocalPlayer(),"jnvm/remote_start.wav")
+		radioSoundEffect:PlayEx(JNVoiceMod.ClConfig.RadioSounds,100)
+end)
