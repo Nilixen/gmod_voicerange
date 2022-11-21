@@ -29,5 +29,7 @@ JNVoiceMod.Lang["PL-pl"] = {
     ["sphereAlpha"] = "Alfa sfery rozmowy",
     ["bindChanger"] = "Przycisk przełączenia tryby rozmowy",
     ["radioBindChanger"] = "Przycisk rozmowy przez radio",
-    
+    ["radioLoundness"] = "Głośność czatu głosowego radia",
+    ["radioSounds"] = "Głośność efektów dźwiękowych radia",
+
 }

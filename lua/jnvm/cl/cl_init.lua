@@ -89,6 +89,7 @@ end)
 // check keybinds
 local pressedMode,pressedRadio = false,false
 hook.Add("Think","JNVMBindCheck",function()
+	
 	local cache = input.IsButtonDown( JNVoiceMod.ClConfig.Bind )
 	if cache and pressedMode and not LocalPlayer():IsTyping() then
 		LocalPlayer():ConCommand("voicerange")
@@ -96,26 +97,36 @@ hook.Add("Think","JNVMBindCheck",function()
 	pressedMode = not cache
 	
 	// detect radio bind and play sounds
-	local radioBindPressed = input.IsButtonDown(JNVoiceMod.ClConfig.BindRadio)
-	if radioBindPressed and pressedRadio == false then
-		pressedRadio = true
-		permissions.EnableVoiceChat( true )
-		// change sound.play to csoundpatch todo
-		sound.Play("items/ammopickup.wav",LocalPlayer():GetPos(),100,100,JNVoiceMod.ClConfig.RadioSounds)		//todo fix those sounds...
-		net.Start("jnvm_network")
-			net.WriteInt(3,5)
-			net.WriteBool(true)
-		net.SendToServer()
-	elseif not radioBindPressed and pressedRadio then 
-		permissions.EnableVoiceChat( false )
-		pressedRadio = false
-		sound.Play("jnvm/remote_end.wav",LocalPlayer():GetPos(),1,1,JNVoiceMod.ClConfig.RadioSounds)
-		net.Start("jnvm_network")
-			net.WriteInt(3,5)
-			net.WriteBool(false)
-		net.SendToServer()
-	end
+	if LocalPlayer():HasWeapon("jnvm_radio") then // works only if player has radio
+		local radioBindPressed = input.IsButtonDown(JNVoiceMod.ClConfig.BindRadio)
 
+		if radioBindPressed and pressedRadio == false then
+
+			pressedRadio = true
+			permissions.EnableVoiceChat( true )
+			// change sound.play to csoundpatch todo
+			local radioSoundEffect = CreateSound(LocalPlayer(),"jnvm/remote_start.wav")
+			print(JNVoiceMod.ClConfig.RadioSounds)
+			radioSoundEffect:ChangeVolume(JNVoiceMod.ClConfig.RadioSounds)
+			radioSoundEffect:Play()
+			net.Start("jnvm_network")
+				net.WriteInt(3,5)
+				net.WriteBool(true)
+			net.SendToServer()
+
+		elseif not radioBindPressed and pressedRadio then 
+
+			permissions.EnableVoiceChat( false )
+			pressedRadio = false
+			local radioSoundEffect = CreateSound(LocalPlayer(),"jnvm/remote_end.wav")
+			radioSoundEffect:ChangeVolume(JNVoiceMod.ClConfig.RadioSounds)
+			radioSoundEffect:Play()
+			net.Start("jnvm_network")
+				net.WriteInt(3,5)
+				net.WriteBool(false)
+			net.SendToServer()
+		end
+	end
 
 
 end)

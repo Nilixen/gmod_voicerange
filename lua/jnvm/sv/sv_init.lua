@@ -1,11 +1,24 @@
+
+// create config directory
 file.CreateDir(JNVoiceMod.FileDir)
 
-
+// create function to load shared config, load it and sync with players
+    // save config
 function JNVoiceMod:SaveConfig()
     file.Write( self.FileDir.."settings.txt", util.TableToJSON(self.Config) )
-
 end
 
+    // load config
+function JNVoiceMod:LoadConfig()
+    if not file.Exists( self.FileDir.."settings.txt", "DATA" ) then
+        file.Write( self.FileDir.."settings.txt", util.TableToJSON(self.Config) )
+    else
+        local data = util.JSONToTable(file.Read( self.FileDir.."settings.txt", "DATA" ))
+        self.Config = data
+        JNVoiceMod:SynchronizeConfig()
+    end
+end
+    // sync config
 function JNVoiceMod:SynchronizeConfig(num,ply)
     if not num then num = 0 end
     net.Start("jnvm_network")
@@ -19,22 +32,18 @@ function JNVoiceMod:SynchronizeConfig(num,ply)
     end
 end
 
-function JNVoiceMod:LoadConfig()
-    if not file.Exists( self.FileDir.."settings.txt", "DATA" ) then
-        file.Write( self.FileDir.."settings.txt", util.TableToJSON(self.Config) )
-    else
-        local data = util.JSONToTable(file.Read( self.FileDir.."settings.txt", "DATA" ))
-        self.Config = data
-        JNVoiceMod:SynchronizeConfig()
-    end
-end
-
+// execute config load on server start
 JNVoiceMod:LoadConfig()
 
+// new player connected to server, so we have to give him current server config and basic values
 hook.Add( "PlayerInitialSpawn", "JNVoiceModSynchro", function( ply )
     JNVoiceMod:SynchronizeConfig(1,ply)
     ply:SetNWInt("JNVoiceModDist",1)
+    ply:SetNWString("JNVoiceModFreq",tostring(JNVoiceMod.Config.Freq.min))
 end )
+
+
+// MAIN 
 
 hook.Add("PlayerCanHearPlayersVoice","JNVoiceModHook", function(listener, speaker)
     if listener != speaker then

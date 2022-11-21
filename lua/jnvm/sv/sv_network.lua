@@ -25,6 +25,7 @@ net.Receive("jnvm_network",function(len, ply)
         
     elseif num == 3 then    // talking on radio
         local bool = net.ReadBool()
+        if not ply:HasWeapon("jnvm_radio") then return end
         if bool then
             ply.JNVMLastMode = ply:GetNWInt("JNVoiceModDist")
             ply:SetNWInt("JNVoiceModDist",1)
@@ -33,8 +34,20 @@ net.Receive("jnvm_network",function(len, ply)
             ply:SetNWInt("JNVoiceModDist",lastMode)
         end
         ply:SetNWBool("JNVoiceModRadio",bool)
-
+    elseif num == 4 then
+        local config = JNVoiceMod.Config
+        local freq = net.ReadFloat()
+        freq = math.Round(freq,1)
+        if freq >= config.FreqRange.min and freq <= config.FreqRange.max then
+            ply:SetNWString("JNVoiceModFreq", tostring(freq))
+        end
     end
 end)
 
 
+--[[
+    networked values:
+        string JNVoiceModFreq - players current frequency or earlier defined channel
+        int JNVoiceModDist - id from config.ranges defines distance
+        bool JNVoiceModRadio - if ply is using radio in that moment
+]]--

@@ -29,5 +29,7 @@ JNVoiceMod.Lang["EN-en"] = {
     ["sphereAlpha"] = "Talk sphere alpha",
     ["bindChanger"] = "Talking mode bind",
     ["radioBindChanger"] = "Radio bind",
+    ["radioLoundness"] = "Radio's voice chat volume",
+    ["radioSounds"] = "Radio' soundeffects volume",
 
 }
