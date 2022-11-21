@@ -24,7 +24,8 @@ hook.Add("Think","JNVoiceMod_ClVolume",function()
 		// sound fading
 		if not v:GetNWBool("JNVoiceModRadio") then
 			local plyMode
-			if not v:IsBot() then plyMode = v:GetNWInt("JNVoiceModDist",2) end
+			if v:IsBot() then return end
+			plyMode = v:GetNWInt("JNVoiceModDist",2)
 			local dist = JNVoiceMod.Config.Ranges[plyMode].rng
 			v:SetVoiceVolumeScale( math.Clamp((dist*1.5 - LocalPlayer():GetPos():Distance(v:GetPos()))/(dist),0,1) )
 		else
@@ -65,12 +66,21 @@ end)
 
 // Switch voice range
 concommand.Add("voicerange", function( ply, cmd, args )
-	if IsValid(ply) then
-		net.Start("jnvm_network")
-	  		net.WriteInt(2,5)
-		net.SendToServer()
-  	end
+	if not IsValid(ply) or not ply:IsPlayer() then return end
+	net.Start("jnvm_network")
+		net.WriteInt(2,5)
+	net.SendToServer()
+  	
 end )
+
+// Toggle radio on/off
+concommand.Add("jnvmradiotoggle",function(ply, cmd, args)
+	if not IsValid(ply) or not ply:IsPlayer() then return end
+	net.Start("jnvm_network")
+		net.WriteInt(4,5)
+	net.SendToServer()
+end)
+
 
 // open admin config menu
 concommand.Add("jnvmconfigmenu", function( ply, cmd, args )
@@ -85,47 +95,72 @@ concommand.Add("jnvmfixgui", function( ply, cmd, args )
 	if IsValid(JNVoiceMod.ClConfig.frame) then JNVoiceMod.ClConfig.frame:Remove() end
 end)
 
-
 // check keybinds
-local pressedMode,pressedRadio = false,false
+
+local function radioTX(channel,bool)
+	net.Start("jnvm_network")
+		net.WriteInt(3,5)
+		net.WriteBool(bool)
+		net.WriteBool(channel)
+	net.SendToServer()
+end
+
+local function playSound(bool)
+	if JNVoiceMod.Config.RadioSoundEffectsHeareableForOthers then return end	// check if sound is only client side. Serverside is in sv_network.lua
+	if bool then
+		local radioSoundEffect = CreateSound(LocalPlayer(),"jnvm/remote_start.wav")
+		radioSoundEffect:PlayEx(JNVoiceMod.ClConfig.RadioSounds,100)
+	else
+		local radioSoundEffect = CreateSound(LocalPlayer(),"jnvm/remote_end.wav")
+		radioSoundEffect:PlayEx(JNVoiceMod.ClConfig.RadioSounds,100)
+	end
+end
+
+
+local pressedMode,pressedRadio,toggleRadio = false,false,false
 hook.Add("Think","JNVMBindCheck",function()
-	
+	if LocalPlayer():IsTyping() then return end
+
 	local cache = input.IsButtonDown( JNVoiceMod.ClConfig.Bind )
-	if cache and pressedMode and not LocalPlayer():IsTyping() then
+	if cache and pressedMode then
 		LocalPlayer():ConCommand("voicerange")
 	end
 	pressedMode = not cache
 	
 	// detect radio bind and play sounds
-	if LocalPlayer():HasWeapon("jnvm_radio") then // works only if player has radio
-		local radioBindPressed = input.IsButtonDown(JNVoiceMod.ClConfig.BindRadio)
+	if LocalPlayer():HasWeapon("jnvm_radio") and LocalPlayer():GetNWBool("JNVoiceModRadioEnabled",false) then // works only if player has radio and its enabled
 
-		if radioBindPressed and pressedRadio == false then
+		local radioMainBindPressed = input.IsButtonDown(JNVoiceMod.ClConfig.BindRadioMain)
+		local radioAddBindPressed = input.IsButtonDown(JNVoiceMod.ClConfig.BindRadioAdd)
 
+		local which = false
+		if radioMainBindPressed then
+			which = false
+		elseif radioAddBindPressed then
+			which = true
+		end
+
+		if (radioMainBindPressed or radioAddBindPressed) and pressedRadio == false then
 			pressedRadio = true
 			permissions.EnableVoiceChat( true )
-			// change sound.play to csoundpatch todo
-			local radioSoundEffect = CreateSound(LocalPlayer(),"jnvm/remote_start.wav")
-			print(JNVoiceMod.ClConfig.RadioSounds)
-			radioSoundEffect:ChangeVolume(JNVoiceMod.ClConfig.RadioSounds)
-			radioSoundEffect:Play()
-			net.Start("jnvm_network")
-				net.WriteInt(3,5)
-				net.WriteBool(true)
-			net.SendToServer()
-
-		elseif not radioBindPressed and pressedRadio then 
-
+			playSound(true)
+			radioTX(which,true)
+		elseif not (radioMainBindPressed or radioAddBindPressed) and pressedRadio then 
 			permissions.EnableVoiceChat( false )
 			pressedRadio = false
-			local radioSoundEffect = CreateSound(LocalPlayer(),"jnvm/remote_end.wav")
-			radioSoundEffect:ChangeVolume(JNVoiceMod.ClConfig.RadioSounds)
-			radioSoundEffect:Play()
-			net.Start("jnvm_network")
-				net.WriteInt(3,5)
-				net.WriteBool(false)
-			net.SendToServer()
+			playSound(false)
+			radioTX(which,false)
 		end
+	end
+
+	// toggle radio bind and play sound
+
+	if LocalPlayer():HasWeapon("jnvm_radio") then
+		local radioToggleBindPressed = input.IsButtonDown(JNVoiceMod.ClConfig.BindToggleRadio)
+		if radioToggleBindPressed and toggleRadio then
+			LocalPlayer():ConCommand("jnvmradiotoggle")
+		end
+		toggleRadio = not radioToggleBindPressed
 	end
 
 

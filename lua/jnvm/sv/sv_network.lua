@@ -7,12 +7,14 @@ net.Receive("jnvm_network",function(len, ply)
         local yell = net.ReadInt(16)
         local lang = net.ReadString()
         local globalvoice = net.ReadBool()
+        local radioSounds = net.ReadBool()
 
         JNVoiceMod.Config.Ranges[1].rng = whisper
         JNVoiceMod.Config.Ranges[2].rng = talk
         JNVoiceMod.Config.Ranges[3].rng = yell
         JNVoiceMod.Config.Language = ((JNVoiceMod.Lang[lang] and lang) or "EN-en")
         JNVoiceMod.Config.GlobalVoice = globalvoice
+        JNVoiceMod.Config.RadioSoundEffectsHeareableForOthers = radioSounds
 
         JNVoiceMod:SaveConfig()
         JNVoiceMod:SynchronizeConfig()
@@ -25,29 +27,45 @@ net.Receive("jnvm_network",function(len, ply)
         
     elseif num == 3 then    // talking on radio
         local bool = net.ReadBool()
-        if not ply:HasWeapon("jnvm_radio") then return end
+        local channel = net.ReadBool()
+        if not ply:HasWeapon("jnvm_radio") and not ply:GetNWBool("JNVoiceModRadioEnabled",false) then return end
         if bool then
             ply.JNVMLastMode = ply:GetNWInt("JNVoiceModDist")
             ply:SetNWInt("JNVoiceModDist",1)
+            if not channel then
+                ply:SetNWInt("JNVoiceModRadio",1)
+            else
+                ply:SetNWInt("JNVoiceModRadio",2)
+            end
+            if JNVoiceMod.Config.RadioSoundEffectsHeareableForOthers then 
+                local radioSoundEffect = CreateSound(ply,"jnvm/remote_start.wav")
+                radioSoundEffect:PlayEx(.3,100)
+            end
         else
             local lastMode = ply.JNVMLastMode or 2
             ply:SetNWInt("JNVoiceModDist",lastMode)
+            ply:SetNWInt("JNVoiceModRadio",0)
+            if JNVoiceMod.Config.RadioSoundEffectsHeareableForOthers then
+                local radioSoundEffect = CreateSound(ply,"jnvm/remote_end.wav")
+                radioSoundEffect:PlayEx(.3,100)
+            end
         end
-        ply:SetNWBool("JNVoiceModRadio",bool)
-    elseif num == 4 then
-        local config = JNVoiceMod.Config
-        local freq = net.ReadFloat()
-        freq = math.Round(freq,1)
-        if freq >= config.FreqRange.min and freq <= config.FreqRange.max then
-            ply:SetNWString("JNVoiceModFreq", tostring(freq))
-        end
+    elseif num == 4 then    // toggle radio on/off
+        
+        JNVoiceMod:ForceRadio(ply)
+        
+    elseif num == 5 then    // select frequency todo new freq is json table string
+
     end
 end)
 
 
 --[[
     networked values:
-        string JNVoiceModFreq - players current frequency or earlier defined channel
+        string json JNVoiceModFreq - players current frequency or earlier defined channel
         int JNVoiceModDist - id from config.ranges defines distance
-        bool JNVoiceModRadio - if ply is using radio in that moment
+        int JNVoiceModRadio - is equal to radio channel (0 = off; 1 = main channel; 2 = additional channel)
+
+    public hooks:
+        todo if needed 
 ]]--

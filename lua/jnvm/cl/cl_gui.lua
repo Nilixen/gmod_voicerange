@@ -6,6 +6,58 @@ function JNVoiceMod:isColor(val)
 
 end
 
+// --------------------------- CUSTOM DIV --------------------------- \\
+local PANEL = {}
+
+function PANEL:Init()
+	self.drawLine = true
+	self.Paint = function(s,w,h)
+		if s.drawLine then
+			draw.RoundedBox(6,0+w*.025,0,w*.95,h,JNVoiceMod.ClConfig.GuiColor)
+			draw.RoundedBox(6,0+w*.025,0,w*.95,h,JNVoiceMod.clgui.colors.blended)
+		end
+	end
+end
+
+function PANEL:PerformLayout()
+	self:DockMargin(0,16,0,8)
+	self:SetTall(2)
+end
+
+function PANEL:DrawLine(bool)
+	self.drawLine = bool
+end
+
+vgui.Register("JNVoiceMod.div",PANEL)
+// --------------------------- CUSTOM FREQ VIEW --------------------------- \\
+local PANEL = {}
+
+function PANEL:Init()
+
+	self.Lines = {}
+
+	self.Paint = function(s,w,h)
+		draw.RoundedBox(6,0,0,w,h,JNVoiceMod.clgui.colors.blended)
+	end
+	local vbar = self:GetVBar()
+	vbar.Paint = function(s,w,h) end
+	vbar:SetHideButtons(true)
+
+	vbar.btnGrip.Paint = function(s,w,h)
+		draw.RoundedBox(6,0,0,w*.5,h,JNVoiceMod.ClConfig.GuiColor)
+		draw.RoundedBox(6,0,0,w*.5,h,JNVoiceMod.clgui.colors.blended)
+	end
+
+
+end
+
+function PANEL:AddItem(name,data)
+
+	
+
+end
+
+vgui.Register("JNVoiceMod.definedFreq",PANEL,"DScrollPanel")
 // --------------------------- CUSTOM SLIDER --------------------------- \\
 local PANEL = {}
 
@@ -553,6 +605,14 @@ function PANEL:Init()
 		draw.RoundedBox(0,0,0,w,h,JNVoiceMod.clgui.colors.secondary)
 		draw.RoundedBox(0,0,0,w,h,color)
 	end
+	local vbar = self:GetVBar()
+	vbar.Paint = function(s,w,h) end
+	vbar:SetHideButtons(true)
+
+	vbar.btnGrip.Paint = function(s,w,h)
+		draw.RoundedBox(6,0,0,w*.5,h,JNVoiceMod.ClConfig.GuiColor)
+		draw.RoundedBox(6,0,0,w*.5,h,JNVoiceMod.clgui.colors.blended)
+	end
 
 	self.whisperLabel = self:Add("DLabel")
 	local whisperLabel = self.whisperLabel
@@ -694,11 +754,49 @@ function PANEL:Init()
 		i = i + 1
 	end
 
+	self.radioSoundsLabel = self:Add("DLabel")
+	local radioSoundsLabel = self.radioSoundsLabel
+	radioSoundsLabel:Dock(TOP)
+	radioSoundsLabel:DockMargin(8,8,8,0)
+	radioSoundsLabel:SetText(JNVoiceMod:GetPhrase("radioSoundsEnabled"))
+	radioSoundsLabel:SetFont("JNVoiceMod.header")
 
+	self.radioSoundsCheckbox = self:Add("JNVoiceMod.checkBox")
+	local checkbox = self.radioSoundsCheckbox
+	checkbox:SetText(JNVoiceMod:GetPhrase("radioSoundsToggle"))
+	checkbox:Dock(TOP)
+	checkbox:DockMargin(8,0,8,8)
+	checkbox:SetFont("JNVoiceMod.header")
+	checkbox:SetValue( JNVoiceMod.Config.RadioSoundEffectsHeareableForOthers )
+
+	// custom frequencies
+
+	self.frequenciesLabel = self:Add("DLabel")
+	local frequenciesLabel = self.frequenciesLabel
+	frequenciesLabel:Dock(TOP)
+	frequenciesLabel:DockMargin(8,8,8,4)
+	frequenciesLabel:SetText(JNVoiceMod:GetPhrase("freqLabel"))
+	frequenciesLabel:SetFont("JNVoiceMod.header")
+
+
+	self.frequencies = self:Add( "JNVoiceMod.definedFreq" )
+	local freqs = self.frequencies
+	freqs:Dock(TOP)
+	freqs:DockMargin(8,0,8,8)
+
+	for k,v in pairs(JNVoiceMod.Config.DefinedFreq) do
+		freqs:AddItem(k,v)
+	end
 
 end
 
-vgui.Register("JNVoiceMod.adminBody",PANEL)
+function PANEL:PerformLayout()
+
+	self.frequencies:SetTall(120)
+	
+end
+
+vgui.Register("JNVoiceMod.adminBody",PANEL,"DScrollPanel")
 
 // --------------------------- CLIENT BODY --------------------------- \\
 local PANEL = {}
@@ -818,6 +916,10 @@ function PANEL:Init()
 	hudAlphaMode:SetDefaultValue(JNVoiceMod.ClConfig.ChngAlpha*100)
 	
 	// TALK SPHERE ENABLED
+
+	local div = self:Add("JNVoiceMod.div")
+	div:Dock(TOP)
+
 	self.sphereEnabledLabel = self:Add("DLabel")
 	local sphereEnabledLabel = self.sphereEnabledLabel
 	sphereEnabledLabel:Dock(TOP)
@@ -851,6 +953,7 @@ function PANEL:Init()
 
 	// binds
 
+
 	self.talkBindLabel = self:Add("DLabel")
 	local bindLabel = self.talkBindLabel
 	bindLabel:Dock(TOP)
@@ -876,20 +979,26 @@ function PANEL:Init()
 		end
 	end	
 
+
+	// radio main channel
+
+	local div = self:Add("JNVoiceMod.div")
+	div:Dock(TOP)
+
 	self.radioBindLabel = self:Add("DLabel")
 	local bindLabel = self.radioBindLabel
 	bindLabel:Dock(TOP)
 	bindLabel:DockMargin(8,8,8,0)
-	bindLabel:SetText(JNVoiceMod:GetPhrase("radioBindChanger"))
+	bindLabel:SetText(JNVoiceMod:GetPhrase("radioBindChangerMain"))
 	bindLabel:SetFont("JNVoiceMod.header")
 
-	self.radioBindChanger =  self:Add("DBinder")
-	local bindChanger = self.radioBindChanger
+	self.radioBindChangerMain =  self:Add("DBinder")
+	local bindChanger = self.radioBindChangerMain
 	bindChanger.color = JNVoiceMod.clgui.text.combobox
 	bindChanger.color2 = JNVoiceMod.clgui.text.primary
 	bindChanger:Dock(TOP)
 	bindChanger:DockMargin(8,4,8,0)
-	bindChanger:SetSelectedNumber(JNVoiceMod.ClConfig.BindRadio)
+	bindChanger:SetSelectedNumber(JNVoiceMod.ClConfig.BindRadioMain)
 	bindChanger:SetFont("JNVoiceMod.binder")
 	bindChanger:SetTextColor(bindChanger.color)
 	bindChanger.Paint = function(s,w,h)
@@ -900,28 +1009,102 @@ function PANEL:Init()
 			bindChanger:SetTextColor(bindChanger.color)
 		end
 	end	
-	// radio loudness
-
-	self.radioLoudnessLabel = self:Add("DLabel")
-	local radioLoudnessLabel = self.radioLoudnessLabel
+	self.radioVCMainLabel = self:Add("DLabel")
+	local radioLoudnessLabel = self.radioVCMainLabel
 	radioLoudnessLabel:Dock(TOP)
 	radioLoudnessLabel:DockMargin(8,8,8,0)
-	radioLoudnessLabel:SetText(JNVoiceMod:GetPhrase("radioLoudness"))
+	radioLoudnessLabel:SetText(JNVoiceMod:GetPhrase("radioLoudnessMain"))
 	radioLoudnessLabel:SetFont("JNVoiceMod.header")
 
-	self.radioLoudness = self:Add("JNVoiceMod.slider")
-	local radioLoudness = self.radioLoudness
+	self.radioVCMain = self:Add("JNVoiceMod.slider")
+	local radioLoudness = self.radioVCMain
 	radioLoudness:Dock(TOP)
 	radioLoudness:DockMargin(8,4,8,0)
 	radioLoudness:Percentage(true)
-	radioLoudness:SetValue(JNVoiceMod.ClConfig.RadioLoudness*100)
-	radioLoudness:SetDefaultValue(JNVoiceMod.ClConfig.RadioLoudness*100)
+	radioLoudness:SetValue(JNVoiceMod.ClConfig.RadioVCMain*100)
+	radioLoudness:SetDefaultValue(JNVoiceMod.ClConfig.RadioVCMain*100)
+
+	// radio additional channel
+	
+	local div = self:Add("JNVoiceMod.div")
+	div:Dock(TOP)
+
+	self.radioBindLabel = self:Add("DLabel")
+	local bindLabel = self.radioBindLabel
+	bindLabel:Dock(TOP)
+	bindLabel:DockMargin(8,8,8,0)
+	bindLabel:SetText(JNVoiceMod:GetPhrase("radioBindChangerAdd"))
+	bindLabel:SetFont("JNVoiceMod.header")
+
+	self.radioBindChangerAdd = self:Add("DBinder")
+	local bindChanger = self.radioBindChangerAdd
+	bindChanger.color = JNVoiceMod.clgui.text.combobox
+	bindChanger.color2 = JNVoiceMod.clgui.text.primary
+	bindChanger:Dock(TOP)
+	bindChanger:DockMargin(8,4,8,0)
+	bindChanger:SetSelectedNumber(JNVoiceMod.ClConfig.BindRadioAdd)
+	bindChanger:SetFont("JNVoiceMod.binder")
+	bindChanger:SetTextColor(bindChanger.color)
+	bindChanger.Paint = function(s,w,h)
+		draw.RoundedBox(6,0,0,w,h,JNVoiceMod.clgui.colors.blended)
+		if s:IsHovered() then
+			bindChanger:SetTextColor(bindChanger.color2)
+		else
+			bindChanger:SetTextColor(bindChanger.color)
+		end
+	end	
+
+	self.radioVCAddLabel = self:Add("DLabel")
+	local radioLoudnessLabel = self.radioVCAddLabel
+	radioLoudnessLabel:Dock(TOP)
+	radioLoudnessLabel:DockMargin(8,8,8,0)
+	radioLoudnessLabel:SetText(JNVoiceMod:GetPhrase("radioLoudnessAdd"))
+	radioLoudnessLabel:SetFont("JNVoiceMod.header")
+
+	self.radioVCAdd = self:Add("JNVoiceMod.slider")
+	local radioLoudness = self.radioVCAdd
+	radioLoudness:Dock(TOP)
+	radioLoudness:DockMargin(8,4,8,0)
+	radioLoudness:Percentage(true)
+	radioLoudness:SetValue(JNVoiceMod.ClConfig.RadioVCAdd*100)
+	radioLoudness:SetDefaultValue(JNVoiceMod.ClConfig.RadioVCAdd*100)
+
+
+	// toggle radio
+	
+	local div = self:Add("JNVoiceMod.div")
+	div:Dock(TOP)
+
+	self.radioBindLabel = self:Add("DLabel")
+	local bindLabel = self.radioBindLabel
+	bindLabel:Dock(TOP)
+	bindLabel:DockMargin(8,8,8,0)
+	bindLabel:SetText(JNVoiceMod:GetPhrase("radioToggle"))
+	bindLabel:SetFont("JNVoiceMod.header")
+
+	self.radioBindChangerToggle = self:Add("DBinder")
+	local bindChanger = self.radioBindChangerToggle
+	bindChanger.color = JNVoiceMod.clgui.text.combobox
+	bindChanger.color2 = JNVoiceMod.clgui.text.primary
+	bindChanger:Dock(TOP)
+	bindChanger:DockMargin(8,4,8,0)
+	bindChanger:SetSelectedNumber(JNVoiceMod.ClConfig.BindToggleRadio)
+	bindChanger:SetFont("JNVoiceMod.binder")
+	bindChanger:SetTextColor(bindChanger.color)
+	bindChanger.Paint = function(s,w,h)
+		draw.RoundedBox(6,0,0,w,h,JNVoiceMod.clgui.colors.blended)
+		if s:IsHovered() then
+			bindChanger:SetTextColor(bindChanger.color2)
+		else
+			bindChanger:SetTextColor(bindChanger.color)
+		end
+	end	
 
 	self.radioSoundsLabel = self:Add("DLabel")
 	local radioSoundsLabel = self.radioSoundsLabel
 	radioSoundsLabel:Dock(TOP)
 	radioSoundsLabel:DockMargin(8,8,8,0)
-	radioSoundsLabel:SetText(JNVoiceMod:GetPhrase("radioSounds	"))
+	radioSoundsLabel:SetText(JNVoiceMod:GetPhrase("radioSounds"))
 	radioSoundsLabel:SetFont("JNVoiceMod.header")
 
 	self.radioSounds = self:Add("JNVoiceMod.slider")
@@ -932,7 +1115,9 @@ function PANEL:Init()
 	radioSounds:SetValue(JNVoiceMod.ClConfig.RadioSounds*100)
 	radioSounds:SetDefaultValue(JNVoiceMod.ClConfig.RadioSounds*100)
 
-
+	local div = self:Add("JNVoiceMod.div")
+	div:Dock(TOP)
+	div:DrawLine(false)
 
 
 end
@@ -945,6 +1130,10 @@ function PANEL:PerformLayout()
 	self.hudAlphaMode:SetTall(30)
 	self.talkBindChanger:SetTall(30)
 
+	if JNVoiceMod.Config.RadioSoundEffectsHeareableForOthers then
+		self.radioSoundsLabel:SetVisible(false)
+		self.radioSounds:SetVisible(false)
+	end
 
 end
 
@@ -956,7 +1145,7 @@ function JNVoiceMod:OpenConfigMenu()
 	
     JNVoiceMod.ClConfig.frame = vgui.Create("JNVoiceMod.frame")
     local frame = JNVoiceMod.ClConfig.frame
-    frame:SetSize(600,420)
+    frame:SetSize(600,800)
     frame:Center()
     frame:MakePopup()
     frame:SetTitle(JNVoiceMod:GetPhrase("admConfigGUI"))
@@ -969,19 +1158,22 @@ function JNVoiceMod:OpenConfigMenu()
 	footer.submitBtn.text2 = JNVoiceMod:GetPhrase("submit")
 
 	footer.submitBtn.check = function(s)
-		return (tonumber(s:GetParent().body.whisperSlider:GetValue()) <= 0 or
-		tonumber(s:GetParent().body.talkSlider:GetValue()) <= 0 or 
-		tonumber(s:GetParent().body.yellSlider:GetValue()) <= 0 ) 
+		local body = s:GetParent().body
+		return (tonumber(body.whisperSlider:GetValue()) <= 0 or
+		tonumber(body.talkSlider:GetValue()) <= 0 or 
+		tonumber(body.yellSlider:GetValue()) <= 0 ) 
 	end
 	footer.submitBtn.DoClick = function(s)
 		local _lang,data = s:GetParent().body.langComboBox:GetSelected()
+		local body = s:GetParent().body
 		net.Start("jnvm_network")
 			net.WriteInt(1,5)
-			net.WriteInt(s:GetParent().body.whisperSlider:GetValue(),16)
-			net.WriteInt(s:GetParent().body.talkSlider:GetValue(),16)
-			net.WriteInt(s:GetParent().body.yellSlider:GetValue(),16)
+			net.WriteInt(body.whisperSlider:GetValue(),16)
+			net.WriteInt(body.talkSlider:GetValue(),16)
+			net.WriteInt(body.yellSlider:GetValue(),16)
 			net.WriteString(data)
-			net.WriteBool(s:GetParent().body.globalVoiceCheckbox:GetChecked())
+			net.WriteBool(body.globalVoiceCheckbox:GetChecked())
+			net.WriteBool(body.radioSoundsCheckbox:GetChecked())
 		net.SendToServer()
 		if IsValid(JNVoiceMod.ClConfig.frame) then JNVoiceMod.ClConfig.frame:Remove() end
 	end
@@ -1033,22 +1225,27 @@ function JNVoiceMod:OpenClConfig()
 		}
 		JNVoiceMod.ClConfig.GuiColor = color
 		local _lang,data = s:GetParent().body.langComboBox:GetSelected()
+		local body = s:GetParent().body
 		JNVoiceMod.ClConfig.Lang = ((JNVoiceMod.Lang[data] and data) or "EN-en")
 
-		JNVoiceMod.ClConfig.IdleAlpha = s:GetParent().body.hudAlphaIdle:GetValue()/100
-		JNVoiceMod.ClConfig.TalkAlpha = s:GetParent().body.hudAlphaTalk:GetValue()/100
-		JNVoiceMod.ClConfig.ChngAlpha = s:GetParent().body.hudAlphaMode:GetValue()/100
+		JNVoiceMod.ClConfig.IdleAlpha = body.hudAlphaIdle:GetValue()/100
+		JNVoiceMod.ClConfig.TalkAlpha = body.hudAlphaTalk:GetValue()/100
+		JNVoiceMod.ClConfig.ChngAlpha = body.hudAlphaMode:GetValue()/100
 		
-		JNVoiceMod.ClConfig.HudEnabled = s:GetParent().body.hudEnabledCheckbox:GetChecked()
+		JNVoiceMod.ClConfig.HudEnabled = body.hudEnabledCheckbox:GetChecked()
 
-		JNVoiceMod.ClConfig.SphereEnabled = s:GetParent().body.sphereEnabledCheckbox:GetChecked()
-		JNVoiceMod.ClConfig.SphereAlpha = s:GetParent().body.sphereAlpha:GetValue()/100
+		JNVoiceMod.ClConfig.SphereEnabled = body.sphereEnabledCheckbox:GetChecked()
+		JNVoiceMod.ClConfig.SphereAlpha = body.sphereAlpha:GetValue()/100
 
-		JNVoiceMod.ClConfig.Bind = s:GetParent().body.talkBindChanger:GetValue()
-		JNVoiceMod.ClConfig.BindRadio = s:GetParent().body.radioBindChanger:GetValue()
+		JNVoiceMod.ClConfig.Bind = body.talkBindChanger:GetValue()
+		JNVoiceMod.ClConfig.BindRadioMain = body.radioBindChangerMain:GetValue()
+		JNVoiceMod.ClConfig.BindRadioAdd = body.radioBindChangerAdd:GetValue()
+		JNVoiceMod.ClConfig.BindToggleRadio = body.radioBindChangerToggle:GetValue()
 
-		JNVoiceMod.ClConfig.RadioLoudness = s:GetParent().body.radioLoudness:GetValue()/100
-		JNVoiceMod.ClConfig.RadioSounds = s:GetParent().body.radioSounds:GetValue()/100
+		JNVoiceMod.ClConfig.RadioVCMain = body.radioVCMain:GetValue()/100
+		JNVoiceMod.ClConfig.RadioVCAdd = body.radioVCAdd:GetValue()/100
+
+		JNVoiceMod.ClConfig.RadioSounds = body.radioSounds:GetValue()/100
 
 
 		JNVoiceMod:ClConfigSave()

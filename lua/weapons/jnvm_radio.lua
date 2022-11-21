@@ -1,7 +1,7 @@
 SWEP.PrintName = "Radio"
 SWEP.Author = "Nilixen"
 SWEP.Contact = "/nilixen"
-SWEP.Instructions = "Press R to open radio's interface"
+SWEP.Instructions = "Press R to open radio's interface\nLLM to toggle on/off"
 SWEP.Spawnable = true
 SWEP.DrawAmmo = false
 SWEP.DrawCrosshair = false
@@ -24,8 +24,18 @@ SWEP.Secondary = {
     DefaultClip = -1,
 }
 
+function SWEP:Initialize()
+    self:GetOwner():SetNWBool("JNVoiceModRadioEnabled",false)
+end
+
+
 function SWEP:PrimaryAttack()
 
-print("huj")
+    self:GetOwner():SetNWBool("JNVoiceModRadioEnabled",!self:GetOwner():GetNWBool("JNVoiceModRadioEnabled",false))
+    JNVoiceMod:ToggleRadioSound(self:GetOwner())
 
+end
+
+function SWEP:SecondaryAttack()
+    
 end

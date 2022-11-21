@@ -39,8 +39,25 @@ JNVoiceMod:LoadConfig()
 hook.Add( "PlayerInitialSpawn", "JNVoiceModSynchro", function( ply )
     JNVoiceMod:SynchronizeConfig(1,ply)
     ply:SetNWInt("JNVoiceModDist",1)
-    ply:SetNWString("JNVoiceModFreq",tostring(JNVoiceMod.Config.Freq.min))
+    ply:SetNWString("JNVoiceModFreq",tostring(JNVoiceMod.Config.FreqRange.min))
 end )
+
+
+// force player to enable or disable his radio if he owns one
+
+function JNVoiceMod:ForceRadio(ply,bool)
+
+    if not IsValid(ply) or not ply:IsPlayer() then return end
+    if not ply:HasWeapon("jnvm_radio") then return end
+
+    if isbool(bool) then
+        ply:SetNWBool("JNVoiceModRadioEnabled",bool)
+    else
+        ply:SetNWBool("JNVoiceModRadioEnabled",not ply:GetNWBool("JNVoiceModRadioEnabled",false))
+    end
+    JNVoiceMod:ToggleRadioSound(ply)
+
+end
 
 
 // MAIN 
