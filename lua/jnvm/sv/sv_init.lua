@@ -41,6 +41,10 @@ hook.Add( "PlayerInitialSpawn", "JNVoiceModSynchro", function( ply )
     ply:SetNWInt("JNVoiceModDist",1)
     ply:SetNWString("JNVoiceModFreq",tostring(JNVoiceMod.Config.FreqRange.min))
 end )
+// disable radio on player death
+hook.Add("PlayerDeath","JNVoiceModResetRadio",function(ply)
+    JNVoiceMod:ForceRadio(ply,false)
+end)
 
 
 // force player to enable or disable his radio if he owns one
@@ -48,7 +52,7 @@ end )
 function JNVoiceMod:ForceRadio(ply,bool)
 
     if not IsValid(ply) or not ply:IsPlayer() then return end
-    if not ply:HasWeapon("jnvm_radio") then return end
+    if not tobool(JNVoiceMod:WhichRadio(ply)) then ply:SetNWBool("JNVoiceModRadioEnabled",false) end    // when he tries to toggle it when he doesnt own one will result in turning it off
 
     if isbool(bool) then
         ply:SetNWBool("JNVoiceModRadioEnabled",bool)

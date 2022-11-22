@@ -14,6 +14,7 @@ if SERVER or game.SinglePlayer() then
 		AddCSLuaFile("jnvm/cl/cl_guiconfig.lua")
 		AddCSLuaFile("jnvm/cl/cl_fonts.lua")
 		AddCSLuaFile("jnvm/cl/cl_gui.lua")
+		AddCSLuaFile("jnvm/cl/cl_hud.lua")
 end
 if CLIENT then
 	// sh
@@ -25,6 +26,7 @@ if CLIENT then
 		include("jnvm/cl/cl_guiconfig.lua")
 		include("jnvm/cl/cl_fonts.lua")
 		include("jnvm/cl/cl_gui.lua")
+		include("jnvm/cl/cl_hud.lua")
 end
 
 

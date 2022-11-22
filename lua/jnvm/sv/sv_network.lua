@@ -28,7 +28,7 @@ net.Receive("jnvm_network",function(len, ply)
     elseif num == 3 then    // talking on radio
         local bool = net.ReadBool()
         local channel = net.ReadBool()
-        if not ply:HasWeapon("jnvm_radio") and not ply:GetNWBool("JNVoiceModRadioEnabled",false) then return end
+        if not tobool(JNVoiceMod:WhichRadio(ply)) and not ply:GetNWBool("JNVoiceModRadioEnabled",false) then return end
         if bool then
             ply.JNVMLastMode = ply:GetNWInt("JNVoiceModDist")
             ply:SetNWInt("JNVoiceModDist",1)

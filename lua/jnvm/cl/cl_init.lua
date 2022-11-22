@@ -111,54 +111,52 @@ local function radioTX(channel,bool)
 	net.SendToServer()
 end
 
-local pressedMode,pressedRadio,toggleRadio = false,false,false
+local pressedMode,onRadio,toggleRadio = false,false,false
 hook.Add("Think","JNVMBindCheck",function()
 	if LocalPlayer():IsTyping() then return end
 
-	local cache = input.IsButtonDown( JNVoiceMod.ClConfig.Bind )
-	if cache and pressedMode then
+	local vcRangeBind = input.IsButtonDown( JNVoiceMod.ClConfig.Bind )
+	if vcRangeBind and pressedMode then
 		LocalPlayer():ConCommand("voicerange")
 	end
-	pressedMode = not cache
+	pressedMode = not vcRangeBind
 	
 	// detect radio bind and play sounds
-	if LocalPlayer():HasWeapon("jnvm_radio") and LocalPlayer():GetNWBool("JNVoiceModRadioEnabled",false) then // works only if player has radio and its enabled
+	if LocalPlayer():GetNWBool("JNVoiceModRadioEnabled",false) then // works only if player has enabled radio
 
-		local radioMainBindPressed = input.IsButtonDown(JNVoiceMod.ClConfig.BindRadioMain)
-		local radioAddBindPressed = input.IsButtonDown(JNVoiceMod.ClConfig.BindRadioAdd)
+		local hasRadio = JNVoiceMod:WhichRadio(LocalPlayer())
+		local radioMainBindPressed = (input.IsButtonDown(JNVoiceMod.ClConfig.BindRadioMain) and hasRadio > 0)
+		local radioAddBindPressed = (input.IsButtonDown(JNVoiceMod.ClConfig.BindRadioAdd) and hasRadio == 1)	// hasRadio == 1 due to checking process... please look at JNVM:HasRadio(ply) function in sh_init.lua file
+		
+		local radioChannel = false	// false = main, true = additional
+		if radioMainBindPressed then radioChannel = false elseif radioAddBindPressed then radioChannel = true end
 
-		local which = false
-		if radioMainBindPressed then
-			which = false
-		elseif radioAddBindPressed then
-			which = true
-		end
+		if (radioMainBindPressed or radioAddBindPressed) and onRadio == false then
+			onRadio = true
 
-		if (radioMainBindPressed or radioAddBindPressed) and pressedRadio == false then
-			pressedRadio = true
 			permissions.EnableVoiceChat( true )
-			LocalPlayer():SetNWInt("JNVoiceModRadio",1)	// force set cuz might be networking lag and without it it will result in flipped sounds
-			radioTX(which,true)
-		elseif not (radioMainBindPressed or radioAddBindPressed) and pressedRadio then 
+			LocalPlayer():SetNWInt("JNVoiceModRadio",1)	// force set cuz there might be networking lag and without it it will result in flipped sounds
+			radioTX(radioChannel,true)
+
+		elseif not (radioMainBindPressed or radioAddBindPressed) and onRadio then 
+			onRadio = false
+
 			permissions.EnableVoiceChat( false )
-			pressedRadio = false
-			LocalPlayer():SetNWInt("JNVoiceModRadio",0)	// force set cuz might be networking lag and without it it will result in flipped sounds
-			radioTX(which,false)
+			LocalPlayer():SetNWInt("JNVoiceModRadio",0)	// force set cuz there might be networking lag and without it it will result in flipped sounds
+			radioTX(radioChannel,false)
+
 		end
 
 	end
 
 	// toggle radio bind and play sound
-
-	if LocalPlayer():HasWeapon("jnvm_radio") then
+	if tobool(JNVoiceMod:WhichRadio(LocalPlayer())) then
 		local radioToggleBindPressed = input.IsButtonDown(JNVoiceMod.ClConfig.BindToggleRadio)
 		if radioToggleBindPressed and toggleRadio then
 			LocalPlayer():ConCommand("jnvmradiotoggle")
 		end
 		toggleRadio = not radioToggleBindPressed
 	end
-
-
 end)
 
 

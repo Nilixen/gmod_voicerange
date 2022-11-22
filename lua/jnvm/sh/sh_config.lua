@@ -28,8 +28,8 @@ JNVoiceMod.Config.DefinedFreq = {
 	},
 }
 
-// When player enables radio or talks on it will be heareable by other nearby... when enabled radio's sound effects wont work and slider will be removed from cl config.
-JNVoiceMod.Config.RadioSoundEffectsHeareableForOthers = false
+// When player enables radio or talks on it or toggles it these sounds will be heareable by other nearby...
+JNVoiceMod.Config.RadioSoundEffectsHeareableForOthers = true
 
--- WHEN USING GAMEMODE OTHER THAN Terrortown (TTT) it will make that you can talk with somone close to you
+// WHEN USING GAMEMODE OTHER THAN Terrortown (TTT) it will make that you can talk with somone close to you
 JNVoiceMod.Config.GlobalVoice = false

@@ -1,4 +1,4 @@
-SWEP.PrintName = "Radio"
+SWEP.PrintName = "Advanced Radio"
 SWEP.Author = "Nilixen"
 SWEP.Contact = "/nilixen"
 SWEP.Instructions = "Press R to open radio's interface\nLLM to toggle on/off"

@@ -19,6 +19,16 @@ function JNVoiceMod:GetPhrase(name,ply,...) // language
 	end
 end
 
+function JNVoiceMod:WhichRadio(ply)
+    if not ply:IsValid() then return 0 end
+    if not ply:IsPlayer() then return 0 end
+    local radios = {"jnvm_radioadvanced","jnvm_radiobasic"}
+    for k,v in pairs(radios) do
+        if ply:HasWeapon(v) then return k end
+    end
+    return 0
+end
+
 
 local function playToggleSound(ply,volume,ent,filter)       // radio toggle sound
     local bool = ply:GetNWBool("JNVoiceModRadioEnabled") 
@@ -60,7 +70,7 @@ function JNVoiceMod:playTXRXSound(ply,ent)
             local filter = RecipientFilter()
             filter:AddPAS(target:GetPos())
             filter:RemovePlayer(ply)
-            playTalkSound(ply,0.2,target,filter)
+            playTalkSound(ply,0.1,target,filter)
 
         end
     end
