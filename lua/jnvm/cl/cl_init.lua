@@ -76,9 +76,14 @@ end )
 // Toggle radio on/off
 concommand.Add("jnvmradiotoggle",function(ply, cmd, args)
 	if not IsValid(ply) or not ply:IsPlayer() then return end
+
+	LocalPlayer():SetNWBool("JNVoiceModRadioEnabled",not LocalPlayer():GetNWBool("JNVoiceModRadioEnabled",false)) // force set cuz might be networking lag and without it it will result in flipped sounds
+	JNVoiceMod:ToggleRadioSound(ply)
+
 	net.Start("jnvm_network")
 		net.WriteInt(4,5)
 	net.SendToServer()
+
 end)
 
 
@@ -98,24 +103,13 @@ end)
 // check keybinds
 
 local function radioTX(channel,bool)
+	JNVoiceMod:playTXRXSound(LocalPlayer())
 	net.Start("jnvm_network")
 		net.WriteInt(3,5)
 		net.WriteBool(bool)
 		net.WriteBool(channel)
 	net.SendToServer()
 end
-
-local function playSound(bool)
-	if JNVoiceMod.Config.RadioSoundEffectsHeareableForOthers then return end	// check if sound is only client side. Serverside is in sv_network.lua
-	if bool then
-		local radioSoundEffect = CreateSound(LocalPlayer(),"jnvm/remote_start.wav")
-		radioSoundEffect:PlayEx(JNVoiceMod.ClConfig.RadioSounds,100)
-	else
-		local radioSoundEffect = CreateSound(LocalPlayer(),"jnvm/remote_end.wav")
-		radioSoundEffect:PlayEx(JNVoiceMod.ClConfig.RadioSounds,100)
-	end
-end
-
 
 local pressedMode,pressedRadio,toggleRadio = false,false,false
 hook.Add("Think","JNVMBindCheck",function()
@@ -143,14 +137,15 @@ hook.Add("Think","JNVMBindCheck",function()
 		if (radioMainBindPressed or radioAddBindPressed) and pressedRadio == false then
 			pressedRadio = true
 			permissions.EnableVoiceChat( true )
-			playSound(true)
+			LocalPlayer():SetNWInt("JNVoiceModRadio",1)	// force set cuz might be networking lag and without it it will result in flipped sounds
 			radioTX(which,true)
 		elseif not (radioMainBindPressed or radioAddBindPressed) and pressedRadio then 
 			permissions.EnableVoiceChat( false )
 			pressedRadio = false
-			playSound(false)
+			LocalPlayer():SetNWInt("JNVoiceModRadio",0)	// force set cuz might be networking lag and without it it will result in flipped sounds
 			radioTX(which,false)
 		end
+
 	end
 
 	// toggle radio bind and play sound
@@ -166,9 +161,10 @@ hook.Add("Think","JNVMBindCheck",function()
 
 end)
 
-//test... works ... now implement it
-	
+
+//test... works ... now implement it todo
 hook.Add("PlayerStartVoice", "ImageOnVoice", function()
 	local radioSoundEffect = CreateSound(LocalPlayer(),"jnvm/remote_start.wav")
-		radioSoundEffect:PlayEx(JNVoiceMod.ClConfig.RadioSounds,100)
+	radioSoundEffect:PlayEx(JNVoiceMod.ClConfig.RadioSounds,100)
 end)
+hook.Remove("PlayerStartVoice","ImageOnVoice")

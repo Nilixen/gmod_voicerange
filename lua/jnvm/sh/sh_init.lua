@@ -2,7 +2,7 @@ JNVoiceMod = JNVoiceMod or {}
 JNVoiceMod.Config = JNVoiceMod.Config or {}
 JNVoiceMod.Lang = JNVoiceMod.Lang or {}
 
-function JNVoiceMod:GetPhrase(name,ply,...)
+function JNVoiceMod:GetPhrase(name,ply,...) // language
 
 	if CLIENT then
 		if JNVoiceMod.Lang[JNVoiceMod.ClConfig.Lang or "EN-en"][name] then
@@ -19,31 +19,54 @@ function JNVoiceMod:GetPhrase(name,ply,...)
 	end
 end
 
-local function playSound(ply)
 
+local function playToggleSound(ply,volume,ent,filter)       // radio toggle sound
     local bool = ply:GetNWBool("JNVoiceModRadioEnabled") 
-    if bool then
-        local radioSoundEffect = CreateSound(ply,"jnvm/local_start.wav")
-        radioSoundEffect:PlayEx(1,100)
-    else
-        local radioSoundEffect = CreateSound(ply,"jnvm/local_end.wav")
-        radioSoundEffect:PlayEx(1,100)
-    end
-
+    local radioSoundEffect = nil
+    local sound = ""
+    if bool then sound = "jnvm/local_start.wav" else sound = "jnvm/local_end.wav" end
+    if filter then radioSoundEffect = CreateSound(ent,sound,filter) else radioSoundEffect = CreateSound(ent,sound) end
+    radioSoundEffect:PlayEx(volume,100)
 end
-
-function JNVoiceMod:ToggleRadioSound(ply)
+function JNVoiceMod:ToggleRadioSound(ply,ent)       
+    local target = ent or ply
 
     if JNVoiceMod.Config.RadioSoundEffectsHeareableForOthers then
         if SERVER then
-            playSound(ply)
-        end
-    else
-        if CLIENT then
-            playSound(ply)
+            local filter = RecipientFilter()
+            filter:AddPAS(target:GetPos())
+            filter:RemovePlayer(ply)
+            playToggleSound(ply,0.2,target,filter)
         end
     end
+    if CLIENT then
+        playToggleSound(ply,JNVoiceMod.ClConfig.RadioSounds,target)
+    end
+end
 
+local function playTalkSound(ply,volume,ent,filter)   // ply is what sound to play, ent where to play it, filter ( only serverside! )...
+
+    local num = ply:GetNWInt("JNVoiceModRadio",0)
+    local radioSoundEffect = nil
+    local sound = ""
+    if num > 0 then sound = "jnvm/remote_start.wav" else sound = "jnvm/remote_end.wav" end
+    if filter then radioSoundEffect = CreateSound(ent,sound,filter) else radioSoundEffect = CreateSound(ent,sound) end
+    radioSoundEffect:PlayEx(volume,100)
+end
+function JNVoiceMod:playTXRXSound(ply,ent)
+    local target = ent or ply
+    if JNVoiceMod.Config.RadioSoundEffectsHeareableForOthers then
+        if SERVER then
+            local filter = RecipientFilter()
+            filter:AddPAS(target:GetPos())
+            filter:RemovePlayer(ply)
+            playTalkSound(ply,0.2,target,filter)
+
+        end
+    end
+    if CLIENT then
+        playTalkSound(ply,JNVoiceMod.ClConfig.RadioSounds,target)
+    end
 end
 
 
@@ -52,5 +75,7 @@ end
 // add a function to give a frequency to certain person (option to be permanent even death)
 // remove custom frequencies on death
 // create value for selected freqs (main and add)
-// create keybind in gui for toggle radio shortcut
+// main function 
+// get/set functions for external use
+// cleanup
 // language...

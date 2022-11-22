@@ -17,9 +17,15 @@ JNVoiceMod.Config.FreqRange = {
 }
 // you can create and give access to these custom freqs eg. police radio encoded for police.
 JNVoiceMod.Config.DefinedFreq = {
-	["police"] = {
+	["pd"] = {
 		name = "Police"
-	}
+	},
+	["ems"] = {
+		name = "EMS"
+	},
+	["fd"] = {
+		name = "Fire Department"
+	},
 }
 
 // When player enables radio or talks on it will be heareable by other nearby... when enabled radio's sound effects wont work and slider will be removed from cl config.

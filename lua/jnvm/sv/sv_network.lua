@@ -32,23 +32,13 @@ net.Receive("jnvm_network",function(len, ply)
         if bool then
             ply.JNVMLastMode = ply:GetNWInt("JNVoiceModDist")
             ply:SetNWInt("JNVoiceModDist",1)
-            if not channel then
-                ply:SetNWInt("JNVoiceModRadio",1)
-            else
-                ply:SetNWInt("JNVoiceModRadio",2)
-            end
-            if JNVoiceMod.Config.RadioSoundEffectsHeareableForOthers then 
-                local radioSoundEffect = CreateSound(ply,"jnvm/remote_start.wav")
-                radioSoundEffect:PlayEx(.3,100)
-            end
+            ply:SetNWInt("JNVoiceModRadio",(not channel and 1 or 2))
+            JNVoiceMod:playTXRXSound(ply)
         else
             local lastMode = ply.JNVMLastMode or 2
             ply:SetNWInt("JNVoiceModDist",lastMode)
             ply:SetNWInt("JNVoiceModRadio",0)
-            if JNVoiceMod.Config.RadioSoundEffectsHeareableForOthers then
-                local radioSoundEffect = CreateSound(ply,"jnvm/remote_end.wav")
-                radioSoundEffect:PlayEx(.3,100)
-            end
+            JNVoiceMod:playTXRXSound(ply)
         end
     elseif num == 4 then    // toggle radio on/off
         
@@ -66,6 +56,6 @@ end)
         int JNVoiceModDist - id from config.ranges defines distance
         int JNVoiceModRadio - is equal to radio channel (0 = off; 1 = main channel; 2 = additional channel)
 
-    public hooks:
+    hooks:
         todo if needed 
 ]]--

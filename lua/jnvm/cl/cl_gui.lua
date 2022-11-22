@@ -51,9 +51,15 @@ function PANEL:Init()
 
 end
 
-function PANEL:AddItem(name,data)
+function PANEL:AddPanel(name,data)
 
-	
+	local panel = self:Add("DPanel")
+	panel:Dock(TOP)
+	panel:DockMargin(4,4,8,4)
+	panel:SetTall(48)
+	panel.Paint = function(s,w,h)
+		draw.RoundedBox(6,0,0,w,h,JNVoiceMod.clgui.colors.blended)
+	end
 
 end
 
@@ -784,16 +790,16 @@ function PANEL:Init()
 	freqs:Dock(TOP)
 	freqs:DockMargin(8,0,8,8)
 
-	for k,v in pairs(JNVoiceMod.Config.DefinedFreq) do
-		freqs:AddItem(k,v)
-	end
-
 end
 
 function PANEL:PerformLayout()
 
-	self.frequencies:SetTall(120)
-	
+	self.frequencies:SetTall(170)
+	self.frequencies:Clear()
+	for k,v in pairs(JNVoiceMod.Config.DefinedFreq) do
+		self.frequencies:AddPanel(k,v)
+	end
+
 end
 
 vgui.Register("JNVoiceMod.adminBody",PANEL,"DScrollPanel")

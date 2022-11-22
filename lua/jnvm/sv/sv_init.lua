@@ -61,7 +61,6 @@ end
 
 
 // MAIN 
-
 hook.Add("PlayerCanHearPlayersVoice","JNVoiceModHook", function(listener, speaker)
     if listener != speaker then
         local dist = listener:GetPos():Distance(speaker:GetPos()) <= JNVoiceMod.Config.Ranges[speaker:GetNWInt("JNVoiceModDist")].rng
