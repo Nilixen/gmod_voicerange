@@ -14,6 +14,13 @@ function JNVoiceMod:LoadConfig()
         file.Write( self.FileDir.."settings.txt", util.TableToJSON(self.Config) )
     else
         local data = util.JSONToTable(file.Read( self.FileDir.."settings.txt", "DATA" ))
+        local saveConfig = false
+        for k,v in pairs(self.Config) do
+            if data[k] then continue end
+            data[k] = v
+            saveConfig = true
+        end
+        if saveConfig then JNVoiceMod:SaveConfig() end
         self.Config = data
         JNVoiceMod:SynchronizeConfig()
     end

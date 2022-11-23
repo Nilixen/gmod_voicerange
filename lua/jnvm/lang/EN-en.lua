@@ -37,6 +37,10 @@ JNVoiceMod.Lang["EN-en"] = {
     ["radioSoundsToggle"] = "ON hearable by everyone nearby; OFF hearable only by client",
     ["radioToggle"] = "Radio's toggle(on/off) bind",
     ["freqLabel"] = "Custom frequencies - be aware of removing anything",
-    ["freqID"] = "ID",
+    ["selectFreqFirst"] = "Select frequency first or create new one!",
+    ["addNew"] = "Add new",
+    ["saveSelected"] = "Save Selected",
+    ["delete"] = "Del",
     ["freqName"] = "Name",
+    ["freqID"] = "ID"
 }

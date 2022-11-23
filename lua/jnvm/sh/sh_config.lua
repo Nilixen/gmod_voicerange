@@ -10,10 +10,10 @@ JNVoiceMod.Config.Ranges = {
 }
 JNVoiceMod.Config.Language = "EN-en"
 
-// purely cosmetic, can be changed to whatever, but this will increase an amount of radio channels. 300-30 = 270 * 10 cuz, 1 decimal
+// purely cosmetic, can be changed to whatever, but this will increase an amount of radio channels. 520-400 * 10 cuz, 1 decimal
 JNVoiceMod.Config.FreqRange = {
-	min = 30, //MHz
-	max = 300, //MHz
+	min = 400, //MHz
+	max = 520, //MHz
 }
 // you can create and give access to these custom freqs eg. police radio encoded for police.
 JNVoiceMod.Config.DefinedFreq = {
@@ -23,8 +23,8 @@ JNVoiceMod.Config.DefinedFreq = {
 	["ems"] = {
 		name = "EMS"
 	},
-	["fd"] = {
-		name = "Fire Department"
+	["gov"] = {
+		name = "Government"
 	},
 }
 
