@@ -73,7 +73,6 @@ function PANEL:AddPanel(id,data)
 		draw.RoundedBox(6,0,0,w,h,color)
 		draw.SimpleText("id: "..id,"JNVoiceMod.freqviewID",4,h-4,JNVoiceMod.clgui.text.primary,TEXT_ALIGN_LEFT,TEXT_ALIGN_BOTTOM)
 
-
 	end
 	panel:SetFont("JNVoiceMod.freqviewName")
 	panel:SetTextColor(JNVoiceMod.clgui.text.primary)
