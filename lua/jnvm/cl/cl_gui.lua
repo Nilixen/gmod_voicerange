@@ -32,11 +32,13 @@ vgui.Register("JNVoiceMod.div",PANEL)
 // --------------------------- CUSTOM FREQ VIEW --------------------------- \\
 local PANEL = {}
 
-JNVoiceMod:CreateFont("freqviewName",20)
+JNVoiceMod:CreateFont("freqviewName",25)
+JNVoiceMod:CreateFont("freqviewID",20)
 
 function PANEL:Init()
 
 	self.lines = {}
+	self.selected = nil
 
 	self.Paint = function(s,w,h)
 		draw.RoundedBox(6,0,0,w,h,JNVoiceMod.clgui.colors.blended)
@@ -55,26 +57,34 @@ end
 
 function PANEL:AddPanel(id,data)
 
-	local panel = self:Add("DPanel")
+	local panel = self:Add("DButton")
 	panel:Dock(TOP)
 	panel:DockMargin(4,4,8,4)
 	panel:SetTall(48)
 	panel.Paint = function(s,w,h)
-		draw.RoundedBox(6,0,0,w,h,JNVoiceMod.clgui.colors.blended)
+		local color = table.Copy(JNVoiceMod.ClConfig.GuiColor)
+		color.a = 20
+
+		draw.RoundedBox(6,0,0,w,h,JNVoiceMod.clgui.colors.primary)
+		if s:IsHovered() then
+			
+
+		end
+		draw.RoundedBox(6,0,0,w,h,color)
+		draw.SimpleText("id: "..id,"JNVoiceMod.freqviewID",4,h-4,JNVoiceMod.clgui.text.primary,TEXT_ALIGN_LEFT,TEXT_ALIGN_BOTTOM)
+
+
 	end
+	panel:SetFont("JNVoiceMod.freqviewName")
+	panel:SetTextColor(JNVoiceMod.clgui.text.primary)
+	panel:SetText(data.name)
+	panel:SetContentAlignment(7)
+	panel:SetTextInset(4,4)
+
 	// add panel to self.lines so it can be accesible
 	table.insert(self.lines,panel)
 
-	local nameLabel = panel:Add("DLabel")
-	nameLabel:Dock(LEFT)
-	nameLabel:DockMargin(4,4,0,4)
-	nameLabel:SetFont("JNVoiceMod.freqviewName")
-	nameLabel:SetText(data.name)
-	nameLabel:SizeToContentsX(16)
-	nameLabel:SetContentAlignment(7)
-	nameLabel.Paint = function(s,w,h)
-		//todo
-	end
+
 
 end
 
@@ -815,6 +825,8 @@ function PANEL:PerformLayout()
 	for k,v in pairs(JNVoiceMod.Config.DefinedFreq) do
 		self.frequencies:AddPanel(k,v)
 	end
+	// add panel to add new things
+
 
 end
 

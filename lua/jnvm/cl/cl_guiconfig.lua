@@ -1,7 +1,7 @@
 JNVoiceMod.clgui = JNVoiceMod.clgui or {}
 local c = JNVoiceMod.clgui
 
-c.font = "Carlito"
+c.font = "Tahoma"
 
 c.text = {
     header = Color(201,201,201),
