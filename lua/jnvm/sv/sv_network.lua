@@ -57,7 +57,7 @@ end)
         string json JNVoiceModFreq - players current frequency or earlier defined channel
         int JNVoiceModDist - id from config.ranges defines distance
         int JNVoiceModRadio - is equal to radio channel (0 = off; 1 = main channel; 2 = additional channel)
-
+        bool JNVoiceModRadioEnabled - radio enabled on/off
     hooks:
         todo if needed 
 ]]--

@@ -81,8 +81,8 @@ end
 
 
 // todo
-// finish gui for creating new frequencies
 // jammer?
+// hud
 // add a function to give a frequency to certain person (option to be permanent even death)
 // remove custom frequencies on death
 // create value for selected freqs (main and add)
