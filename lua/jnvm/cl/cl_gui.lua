@@ -990,6 +990,7 @@ function PANEL:Init()
 			if k == self.frequencies.selected then continue end
 			if v.id == self.frequenciesEditor.idEntry:GetValue() then
 				idEntry:SetTextColor(JNVoiceMod.clgui.colors.red)
+				break
 			else
 				idEntry:SetTextColor(idEntry.color)
 			end
@@ -1385,6 +1386,7 @@ function JNVoiceMod:OpenConfigMenu()
 		return (tonumber(body.whisperSlider:GetValue()) <= 0 or
 		tonumber(body.talkSlider:GetValue()) <= 0 or 
 		tonumber(body.yellSlider:GetValue()) <= 0 ) 
+		
 	end
 	footer.submitBtn.DoClick = function(s)
 		local _lang,data = s:GetParent().body.langComboBox:GetSelected()
@@ -1397,9 +1399,7 @@ function JNVoiceMod:OpenConfigMenu()
 			net.WriteString(data)
 			net.WriteBool(body.globalVoiceCheckbox:GetChecked())
 			net.WriteBool(body.radioSoundsCheckbox:GetChecked())
-			PrintTable(body.DefinedFrequencies) // todo nil
-
-			net.WriteTable(body.DefinedFrequencies)
+			net.WriteTable(body.definedFrequencies)
 		net.SendToServer()
 		if IsValid(JNVoiceMod.ClConfig.frame) then JNVoiceMod.ClConfig.frame:Remove() end
 	end
