@@ -19,7 +19,7 @@ function PANEL:Init()
 	end
 end
 
-function PANEL:PerformLayout()
+function PANEL:PerformLayout() 
 	self:DockMargin(0,16,0,8)
 	self:SetTall(2)
 end
@@ -77,7 +77,7 @@ function PANEL:AddPanel(id,data)
 		draw.RoundedBox(6,0,0,w*s.fill,h,JNVoiceMod.clgui.colors.blended)
 
 		draw.RoundedBox(6,0,0,w,h,color)
-		draw.SimpleText("ID: "..id,"JNVoiceMod.freqviewID",4,h-4,JNVoiceMod.clgui.text.primary,TEXT_ALIGN_LEFT,TEXT_ALIGN_BOTTOM)
+		draw.SimpleText("ID: "..data.id,"JNVoiceMod.freqviewID",4,h-4,JNVoiceMod.clgui.text.primary,TEXT_ALIGN_LEFT,TEXT_ALIGN_BOTTOM)
 
 	end
 	panel:SetFont("JNVoiceMod.freqviewName")
@@ -816,6 +816,8 @@ function PANEL:Init()
 
 	// custom frequencies
 
+	self.definedFrequencies = table.Copy(JNVoiceMod.Config.DefinedFreq) // copy freqs to local value to work on
+
 	self.frequenciesLabel = self:Add("DLabel")
 	local frequenciesLabel = self.frequenciesLabel
 	frequenciesLabel:Dock(TOP)
@@ -850,9 +852,9 @@ function PANEL:Init()
 		s.deleteBtn:SetVisible(true)
 		s.saveSelectedBtn:SetVisible(true)
 		s.nameEntry:SetVisible(true)
-		s.nameEntry:SetText(JNVoiceMod.Config.DefinedFreq[id].name)
+		s.nameEntry:SetText(self.definedFrequencies[id].name)
 		s.idEntry:SetVisible(true)
-		s.idEntry:SetText(id)
+		s.idEntry:SetText(self.definedFrequencies[id].id)
 	end
 	// add new button
 	self.frequenciesEditor.addNewBtn = self.frequenciesEditor:Add("DButton")
@@ -875,6 +877,15 @@ function PANEL:Init()
 		draw.RoundedBox(6,0,0,w*s.fill,h,JNVoiceMod.ClConfig.GuiColor)
 		draw.RoundedBox(6,0,0,w,h,JNVoiceMod.clgui.colors.blended)
 	end
+	addNewBtn.DoClick = function(s)
+		local freqs = self.definedFrequencies
+		local tbl = {
+			id = ("new_frequency"..#freqs),
+			name = "Placeholder",
+		}
+		table.insert(freqs,tbl)
+		self:InvalidateLayout()
+	end
 
 	// cancel editing
 	self.frequenciesEditor.deleteBtn = self.frequenciesEditor:Add("DButton")
@@ -882,7 +893,6 @@ function PANEL:Init()
 	deleteBtn.fill = 0
 	deleteBtn.tempo = 5
 	deleteBtn.posx,deleteBtn.posy = 0,0
-	deleteBtn:SetVisible(false)
 	deleteBtn:Dock(RIGHT)
 	deleteBtn:DockMargin(0,8,8,8)
 	deleteBtn:SetText(JNVoiceMod:GetPhrase("delete"))
@@ -899,13 +909,22 @@ function PANEL:Init()
 		draw.RoundedBox(s:GetWide(),s.posx-(s:GetWide()*s.fill),s.posy-(s:GetWide()*s.fill),(s:GetWide()*s.fill)*2,(s:GetWide()*s.fill)*2,JNVoiceMod.clgui.colors.blended)
 
 	end
+	deleteBtn.DoClick = function(s,w,h)
+		local freqs = self.definedFrequencies
+		// todo
+		
+		local selected = freqs[self.frequencies.selected]
+		if selected then
+			table.RemoveByValue(freqs, selected)
+		end
+		self:InvalidateLayout()
+	end
 
 	// save selected button
 	self.frequenciesEditor.saveSelectedBtn = self.frequenciesEditor:Add("DButton")
 	local saveSelectedBtn = self.frequenciesEditor.saveSelectedBtn
 	saveSelectedBtn.fill = 0
 	saveSelectedBtn.tempo = 5
-	saveSelectedBtn:SetVisible(false)
 	saveSelectedBtn:Dock(RIGHT)
 	saveSelectedBtn:DockMargin(0,8,4,8)
 	saveSelectedBtn:SetText(JNVoiceMod:GetPhrase("saveSelected"))
@@ -922,10 +941,25 @@ function PANEL:Init()
 		draw.RoundedBox(6,0,0,w*s.fill,h,JNVoiceMod.ClConfig.GuiColor)
 		draw.RoundedBox(6,0,0,w,h,JNVoiceMod.clgui.colors.blended)
 	end
+	saveSelectedBtn.DoClick = function(s)
+		// check if values are correct and id's doesnt overlap with other freqs
+		for k,v in pairs(self.definedFrequencies) do
+			if k == self.frequencies.selected then continue end
+			if v.id == self.frequenciesEditor.idEntry:GetValue() then
+				return
+			end
+		end
+
+		local selected = self.frequencies.selected
+		self.definedFrequencies[selected].id = self.frequenciesEditor.idEntry:GetValue()
+		self.definedFrequencies[selected].name = self.frequenciesEditor.nameEntry:GetValue()
+
+		self.frequencies.selected = nil
+		self:InvalidateLayout()
+	end
 
 	self.frequenciesEditor.nameEntry = self.frequenciesEditor:Add("DTextEntry")
 	local nameEntry = self.frequenciesEditor.nameEntry
-	nameEntry:SetVisible(false)
 	nameEntry:Dock(RIGHT)
 	nameEntry:DockMargin(0,8,8,8)	
 	nameEntry:SetPlaceholderText(JNVoiceMod:GetPhrase("freqName"))
@@ -940,7 +974,6 @@ function PANEL:Init()
 
 	self.frequenciesEditor.idEntry = self.frequenciesEditor:Add("DTextEntry")
 	local idEntry = self.frequenciesEditor.idEntry
-	idEntry:SetVisible(false)
 	idEntry:Dock(FILL)
 	idEntry:DockMargin(8,8,8,8)
 	idEntry:SetPlaceholderText(JNVoiceMod:GetPhrase("freqID"))
@@ -950,7 +983,17 @@ function PANEL:Init()
 	idEntry.color = JNVoiceMod.clgui.text.primary
 	idEntry:SetTextColor(idEntry.color)
 	idEntry.PaintOver = function(s,w,h)
+		
 		draw.RoundedBox(6,0,0,w,h,JNVoiceMod.clgui.colors.blended)
+
+		for k,v in pairs(self.definedFrequencies) do
+			if k == self.frequencies.selected then continue end
+			if v.id == self.frequenciesEditor.idEntry:GetValue() then
+				idEntry:SetTextColor(JNVoiceMod.clgui.colors.red)
+			else
+				idEntry:SetTextColor(idEntry.color)
+			end
+		end
 	end
 
 	
@@ -964,10 +1007,17 @@ function PANEL:PerformLayout()
 	self.frequenciesEditor.saveSelectedBtn:SizeToContentsX(48)
 	self.frequenciesEditor.deleteBtn:SizeToContentsX(6)
 	self.frequenciesEditor.nameEntry:SetWide(220)
+	self.frequencies.selected = nil
+	self.frequenciesEditor.addNewBtn:SetVisible(true)
+	self.frequenciesEditor.deleteBtn:SetVisible(false)
+	self.frequenciesEditor.saveSelectedBtn:SetVisible(false)
+	self.frequenciesEditor.nameEntry:SetVisible(false)
+	self.frequenciesEditor.idEntry:SetVisible(false)
+
 
 	self.frequencies:Clear()
 	self.frequencies.lines = {}
-	for k,v in pairs(JNVoiceMod.Config.DefinedFreq) do
+	for k,v in pairs(self.definedFrequencies) do
 		self.frequencies:AddPanel(k,v)
 	end
 
@@ -1347,6 +1397,9 @@ function JNVoiceMod:OpenConfigMenu()
 			net.WriteString(data)
 			net.WriteBool(body.globalVoiceCheckbox:GetChecked())
 			net.WriteBool(body.radioSoundsCheckbox:GetChecked())
+			PrintTable(body.DefinedFrequencies) // todo nil
+
+			net.WriteTable(body.DefinedFrequencies)
 		net.SendToServer()
 		if IsValid(JNVoiceMod.ClConfig.frame) then JNVoiceMod.ClConfig.frame:Remove() end
 	end

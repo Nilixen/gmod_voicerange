@@ -17,13 +17,16 @@ JNVoiceMod.Config.FreqRange = {
 }
 // you can create and give access to these custom freqs eg. police radio encoded for police.
 JNVoiceMod.Config.DefinedFreq = {
-	["pd"] = {
+	[1] = {
+		id = "pd",
 		name = "Police"
 	},
-	["ems"] = {
+	[2] = {
+		id = "ems",
 		name = "EMS"
 	},
-	["gov"] = {
+	[3] = {
+		id = "gov",
 		name = "Government"
 	},
 }

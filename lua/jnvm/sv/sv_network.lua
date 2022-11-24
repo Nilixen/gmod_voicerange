@@ -8,6 +8,7 @@ net.Receive("jnvm_network",function(len, ply)
         local lang = net.ReadString()
         local globalvoice = net.ReadBool()
         local radioSounds = net.ReadBool()
+        local freqs = net.ReadTable()
 
         JNVoiceMod.Config.Ranges[1].rng = whisper
         JNVoiceMod.Config.Ranges[2].rng = talk
@@ -15,6 +16,7 @@ net.Receive("jnvm_network",function(len, ply)
         JNVoiceMod.Config.Language = ((JNVoiceMod.Lang[lang] and lang) or "EN-en")
         JNVoiceMod.Config.GlobalVoice = globalvoice
         JNVoiceMod.Config.RadioSoundEffectsHeareableForOthers = radioSounds
+        JNVoiceMod.Config.DefinedFreq = freqs
 
         JNVoiceMod:SaveConfig()
         JNVoiceMod:SynchronizeConfig()
