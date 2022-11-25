@@ -42,5 +42,12 @@ JNVoiceMod.Lang["EN-en"] = {
     ["saveSelected"] = "Save Selected",
     ["delete"] = "Del",
     ["freqName"] = "Name",
-    ["freqID"] = "ID"
+    ["freqID"] = "ID",
+    ["radioGUI"] = "Radio's settings (WIP!)",
+    ["mainChannel"] = "Main channel (%i MHz - %i MHz)",
+    ["mainChannelHUD"] = "Main: %s",
+    ["addChannel"] = "Additional channel (%i MHz - %i MHz)",
+    ["addChannelHUD"] =  "Add'l: %s",
+    ["freqSelector"] = "Frequency selection",
+    ["channel"] = "Channel",
 }

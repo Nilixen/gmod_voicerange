@@ -24,10 +24,11 @@ hook.Add("PostDrawOpaqueRenderables", "JNVMSphere", function()
 end )
 
 //	HUD
-JNVoiceMod:CreateFont("hudradio",10)
+JNVoiceMod:CreateFont("hudradio",13)
 
 local alpha = 255 
-local color,guicolor,colorText,colorRadio,colorYell,colorTalk,colorWhisper
+local offsetX,offXT = 0,0		//XT - xTarget,
+local color,guicolor,colorText,plyWasTalking,colorRadio,colorYell,colorTalk,colorWhisper,colorFreq
 local hasRadioLerp = 0
 
 local time = CurTime()
@@ -49,12 +50,14 @@ hook.Add( "HUDPaint", "JNVMHud", function()
 				colorYell.a = 255
 			colorRadio = table.Copy(JNVoiceMod.clgui.colors.primary)
 				colorRadio.a = 255
-			colorText = table.Copy(JNVoiceMod.clgui.text.primary)
-				colorText.a = 255
+			colorFreq = table.Copy(JNVoiceMod.clgui.colors.primary)
+				colorFreq.a = 255
 		end
 
+		
 		local scrW,scrH = ScrW(),ScrH()
 		local ply = LocalPlayer()
+		
 
 		local mode = ply:GetNWInt("JNVoiceModDist")
 		// alpha
@@ -62,9 +65,14 @@ hook.Add( "HUDPaint", "JNVMHud", function()
 			time = CurTime() + 2
 			lastMode = mode
 			lastRadioToggle = ply:GetNWBool("JNVoiceModRadioEnabled")
+			if ply:IsSpeaking() then
+			plyWasTalking = true
+			else
+				plyWasTalking = false
+			end
 		end
 
-		alpha = Lerp(5*FrameTime(),alpha,(time >= CurTime() and ply:IsSpeaking()) and JNVoiceMod.ClConfig.TalkAlpha*255 or (time >= CurTime()) and JNVoiceMod.ClConfig.ChngAlpha*255 or JNVoiceMod.ClConfig.IdleAlpha*255)
+		alpha = Lerp(5*FrameTime(),alpha,(time >= CurTime() and plyWasTalking) and JNVoiceMod.ClConfig.TalkAlpha*255 or (time >= CurTime()) and JNVoiceMod.ClConfig.ChngAlpha*255 or JNVoiceMod.ClConfig.IdleAlpha*255)
 
 
 		color.a = alpha
@@ -75,29 +83,50 @@ hook.Add( "HUDPaint", "JNVMHud", function()
 		blendColor.a = alpha
 
 		local w,h = 150,50
-		local margin = 20,0
-		local relX,relY = (scrW/2)-(w/2), scrH*0.90
+		local margin = 20
+		local relX,relY = (scrW/2)-(w/2)-(offsetX/2), scrH*0.90
+
+		// offset
+
+			offsetX = Lerp(5*FrameTime(),offsetX,offXT)
 
 		// radios hud
-		if tobool(JNVoiceMod:WhichRadio(ply)) then
+		local freqs = util.JSONToTable(ply:GetNWString("JNVoiceModFreq"))
+		local whichRadio = JNVoiceMod:WhichRadio(ply)
+
+		if tobool(whichRadio) then
 			hasRadioLerp = Lerp(5*FrameTime(),hasRadioLerp,1)
+			if ply:GetNWBool("JNVoiceModRadioEnabled",false) then
+				offXT = JNVoiceMod.clgui.sizes.hud.radioOffset
+			else
+				offXT = 37
+			end
+			
 		else
 			hasRadioLerp = Lerp(5*FrameTime(),hasRadioLerp,0)
+			offXT = 0
 		end
 		colorRadio.a = alpha*hasRadioLerp
 
-		draw.RoundedBox(16,relX,relY,w+37*hasRadioLerp,h,bgColor)
-		draw.RoundedBoxEx(16,relX+w,relY,37*hasRadioLerp,h,color,false,true,false,true)
+		local radioEnabled = ply:GetNWBool("JNVoiceModRadioEnabled")
+		colorFreq.a = Lerp(5*FrameTime(),colorFreq.a,alpha*(radioEnabled and 1 or 0))
+
+
+		draw.RoundedBox(16,relX,relY,w+offsetX*hasRadioLerp,h,bgColor)
+		draw.RoundedBoxEx(16,relX+w,relY,offsetX*hasRadioLerp,h,color,false,true,false,true)
 
 		local iconSize = h*0.65
 		surface.SetDrawColor(colorRadio)
 		surface.SetMaterial( Material("jnvm/radio.png") )
 		surface.DrawTexturedRect(relX+(w*hasRadioLerp),relY+(h-iconSize)/2,iconSize,iconSize)
-
-		colorText.a = alpha*hasRadioLerp
-		draw.SimpleText((ply:GetNWBool("JNVoiceModRadioEnabled") and "ON" or "OFF"),"JNVoiceMod.hudradio",relX+w+17*hasRadioLerp,relY+(h*0.95),colorText,TEXT_ALIGN_CENTER,TEXT_ALIGN_BOTTOM)
-
-
+		draw.SimpleText((radioEnabled and "ON" or "OFF"),"JNVoiceMod.hudradio",relX+(w+17)*hasRadioLerp,relY+(h*0.95),colorRadio,TEXT_ALIGN_CENTER,TEXT_ALIGN_BOTTOM)
+		
+		// todo rework to be able to handle custom channels
+		draw.SimpleText(JNVoiceMod:GetPhrase("mainChannelHUD",ply,(JNVoiceMod:FindFreqName(freqs.main.channel) or freqs.main.freq.." MHz")),"JNVoiceMod.hudradio",relX+(w+37)*hasRadioLerp,relY+(h*0.5),colorFreq,TEXT_ALIGN_LEFT,TEXT_ALIGN_BOTTOM)
+		if whichRadio == 1 then
+			draw.SimpleText(JNVoiceMod:GetPhrase("addChannelHUD",ply,(JNVoiceMod:FindFreqName(freqs.add.channel) or freqs.add.freq.." MHz")),"JNVoiceMod.hudradio",relX+(w+37)*hasRadioLerp,relY+(h*0.5),colorFreq,TEXT_ALIGN_LEFT,TEXT_ALIGN_TOP)
+		end
+		
 		// modes hud
 			// shadow for whisper
 			surface.SetDrawColor(blendColor)

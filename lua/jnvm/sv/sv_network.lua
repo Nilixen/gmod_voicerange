@@ -47,7 +47,13 @@ net.Receive("jnvm_network",function(len, ply)
         JNVoiceMod:ForceRadio(ply)
         
     elseif num == 5 then    // select frequency todo new freq is json table string
-
+        local tbl = net.ReadTable()
+        for k,v in pairs(tbl) do
+            if v.freq then
+                v.freq = math.Clamp(math.Round(v.freq,1),JNVoiceMod.Config.FreqRange.min,JNVoiceMod.Config.FreqRange.max)
+            end
+        end
+        ply:SetNWString("JNVoiceModFreq",util.TableToJSON(tbl))
     end
 end)
 
@@ -55,6 +61,7 @@ end)
 --[[
     networked values:
         string json JNVoiceModFreq - players current frequency or earlier defined channel
+        string json JNVoiceModChannels - available channels
         int JNVoiceModDist - id from config.ranges defines distance
         int JNVoiceModRadio - is equal to radio channel (0 = off; 1 = main channel; 2 = additional channel)
         bool JNVoiceModRadioEnabled - radio enabled on/off

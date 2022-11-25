@@ -18,3 +18,9 @@ c.colors = {
     red = Color(200,50,50),
     green = Color(50,170,50),
 }
+
+c.sizes = {
+    hud = {
+        radioOffset = 125,  // offset of radio extension in hud
+    },
+}

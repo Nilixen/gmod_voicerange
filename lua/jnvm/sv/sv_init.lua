@@ -46,11 +46,13 @@ JNVoiceMod:LoadConfig()
 hook.Add( "PlayerInitialSpawn", "JNVoiceModSynchro", function( ply )
     JNVoiceMod:SynchronizeConfig(1,ply)
     ply:SetNWInt("JNVoiceModDist",1)
-    ply:SetNWString("JNVoiceModFreq",tostring(JNVoiceMod.Config.FreqRange.min))
+    ply:SetNWString("JNVoiceModFreq",util.TableToJSON({main = {freq = JNVoiceMod.Config.FreqRange.min, channel = nil},add = {freq = JNVoiceMod.Config.FreqRange.min+1, channel = nil}}))
+    ply:SetNWString("JNVoiceModChannels","[]")
 end )
 // disable radio on player death
 hook.Add("PlayerDeath","JNVoiceModResetRadio",function(ply)
     JNVoiceMod:ForceRadio(ply,false)
+    JNVoiceMod:ResetChannels(ply)
 end)
 
 
@@ -69,6 +71,57 @@ function JNVoiceMod:ForceRadio(ply,bool)
     JNVoiceMod:ToggleRadioSound(ply)
 
 end
+
+function JNVoiceMod:GiveChannel(ply,id,permament)
+    local plyChannels = util.JSONToTable(ply:GetNWString("JNVoiceModChannels")) or {}
+
+
+    for k,v in pairs(plyChannels) do
+        if v.id == id then return false end
+    end
+    for k,v in pairs(JNVoiceMod.Config.DefinedFreq) do
+        if v.id == id then
+            table.insert(plyChannels,{id = v.id,perm = permament})
+            ply:SetNWString("JNVoiceModChannels",util.TableToJSON(plyChannels))
+            return true
+        end
+    end
+
+    return false
+
+end
+
+function JNVoiceMod:RemoveChannel(ply,id)
+    local plyChannels = util.JSONToTable(ply:GetNWString("JNVoiceModChannels"))
+    local freqs = util.JSONToTable(ply:GetNWString("JNVoiceModFreq","[]"))
+    for k,v in pairs(plyChannels) do
+        if v.id == id then 
+            table.remove(plyChannels,k)
+            ply:SetNWString("JNVoiceModChannels",util.TableToJSON(plyChannels))
+            for k2,v2 in pairs(freqs) do
+                if v2.channel == v.id then
+                    v2.channel = nil
+                    v2.freq = JNVoiceMod.Config.FreqRange.min
+                    ply:SetNWString("JNVoiceModFreq",util.TableToJSON(freqs))
+                    break
+                end
+            end
+            return true
+        end
+    end
+
+    return false
+end
+
+function JNVoiceMod:ResetChannels(ply)
+    local plyChannels = util.JSONToTable(ply:GetNWString("JNVoiceModChannels"))
+    for k,v in pairs(plyChannels) do
+        if v.perm then continue end
+        self:RemoveChannel(ply,v.id)
+    end
+end
+
+
 
 
 // MAIN 

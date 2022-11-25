@@ -1490,3 +1490,160 @@ end
 
 
 // Radio's gui
+// todo rework to be able to handle custom channels
+local PANEL = {}
+
+function PANEL:Init()
+
+	self.channel = 1
+
+	self.Paint = function(s,w,h)
+		draw.RoundedBox(6,0,0,w,h,JNVoiceMod.clgui.colors.blended)
+	end
+	self.DoClick = function(s)
+		JNVoiceMod.ClConfig.frame:SetMouseInputEnabled(false)
+		JNVoiceMod.ClConfig.frame:SetKeyboardInputEnabled(false)
+
+		local freqs
+		if self.channel == 1 then
+			freqs = self:GetParent():GetParent().freqs.main
+		elseif self.channel == 2 then
+			freqs = self:GetParent():GetParent().freqs.add
+		end
+		
+		s.freqFrame = vgui.Create("JNVoiceMod.frame")
+		local freqFrame = s.freqFrame
+		freqFrame.parent = s	// have to use that cuz' im creating a frame without a default parent look 2 lines up
+		local x,y = freqFrame.parent:LocalToScreen()
+		freqFrame:SetSize(s:GetWide(),100)
+		freqFrame:MakePopup()
+		freqFrame:SetPos(x+s:GetWide()+10,y)
+		freqFrame:SetTitle(JNVoiceMod:GetPhrase("freqSelector"))
+		freqFrame.Think = function(s)
+			if not IsValid(s.parent) then s:Remove() end	// remove this frame when parent dissapears eg. after using jnvmfixgui 
+		end
+		freqFrame.header.closeBtn.DoClick = function(s)
+			JNVoiceMod.ClConfig.frame:SetMouseInputEnabled(true)
+			JNVoiceMod.ClConfig.frame:SetKeyboardInputEnabled(true)
+			freqFrame:Remove()
+		end
+
+		freqFrame.body = freqFrame:Add("DPanel")
+		local body = freqFrame.body
+		body:Dock(FILL)
+		body.Paint = function(s,w,h)
+			local color = table.Copy(JNVoiceMod.ClConfig.GuiColor)
+			color.a = 5
+			draw.RoundedBoxEx(6,0,0,w,h,JNVoiceMod.clgui.colors.secondary,false,false,true,true)
+			draw.RoundedBoxEx(6,0,0,w,h,color,false,false,true,true)
+		end
+
+		body.freqSlider = body:Add("JNVoiceMod.slider")
+		local freqSlider =  body.freqSlider
+		freqSlider:Dock(TOP)
+		freqSlider:DockMargin(8,4,8,0)
+		freqSlider:SetMinMax(JNVoiceMod.Config.FreqRange.min,JNVoiceMod.Config.FreqRange.max)
+		freqSlider:SetDecimals(1)
+		freqSlider:SetValue(freqs.freq)
+		freqSlider:SetDefaultValue(freqs.freq)
+		freqSlider.OnValueChanged = function(s)
+			freqs.channel = nil
+			freqs.freq = s:GetValue()
+			self:SetText(string.format("%.1f MHz",s:GetValue()))
+		end
+	
+		body.channelSelector = body:Add("NJVoiceMod.ComboBox")
+		local channelSelector = body.channelSelector
+		channelSelector:Dock(TOP)
+		channelSelector:DockMargin(8,4,8,0)
+		channelSelector:SetFont("JNVoiceMod.header")
+		channelSelector:SetValue(JNVoiceMod:FindFreqName(freqs.channel) or JNVoiceMod:GetPhrase("channel"))
+	
+		local plyChannels = util.JSONToTable(LocalPlayer():GetNWString("JNVoiceModChannels","[]"))
+
+		for k,v in pairs(JNVoiceMod.Config.DefinedFreq) do
+			for i,l in pairs(plyChannels) do
+				if v.id == l.id then
+					channelSelector:AddChoice(v.name,v.id)
+				end
+			end
+		end
+		channelSelector.OnSelect = function(s,id,val,data)
+			freqs.channel = data
+			freqs.freq = nil
+			self:SetText(val)
+
+		end
+
+
+
+	end
+
+end
+
+vgui.Register("JNVoiceMod.freqSelector",PANEL,"DButton")
+
+function JNVoiceMod:OpenRadioGui(radioType)		// radioType: 1 - advanced, 2 - basic
+	local ply = LocalPlayer()
+	if IsValid(JNVoiceMod.ClConfig.frame) then JNVoiceMod.ClConfig.frame:Remove() end
+	if not table.HasValue({1,2},radioType) then return end
+	
+    JNVoiceMod.ClConfig.frame = vgui.Create("JNVoiceMod.frame")
+    local frame = JNVoiceMod.ClConfig.frame
+    frame:SetSize(300,(radioType == 1 and 130 or 85))
+    frame:Center()
+    frame:MakePopup()
+    frame:SetTitle(JNVoiceMod:GetPhrase("radioGUI"))
+
+	frame.header.closeBtn.DoClick = function(s)
+		net.Start("jnvm_network")
+			net.WriteInt(5,5)
+			net.WriteTable(frame.body.freqs)
+		net.SendToServer()
+		frame:Remove()
+	end
+
+
+	frame.body = frame:Add("DScrollPanel")
+	local body = frame.body
+	body.freqs = util.JSONToTable(ply:GetNWString("JNVoiceModFreq"))
+	body:Dock(FILL)
+	body.Paint = function(s,w,h)
+		local color = table.Copy(JNVoiceMod.ClConfig.GuiColor)
+		color.a = 5
+		draw.RoundedBoxEx(6,0,0,w,h,JNVoiceMod.clgui.colors.secondary,false,false,true,true)
+		draw.RoundedBoxEx(6,0,0,w,h,color,false,false,true,true)
+	end
+
+	body.mainChannelLabel = body:Add("DLabel")
+	local mainChannelLabel = body.mainChannelLabel mainChannelLabel:Dock(TOP) mainChannelLabel:DockMargin(8,0,8,0) mainChannelLabel:SetFont("JNVoiceMod.header")
+	mainChannelLabel:SetText(JNVoiceMod:GetPhrase("mainChannel",ply,JNVoiceMod.Config.FreqRange.min,JNVoiceMod.Config.FreqRange.max))
+
+	// main channel selection
+	body.mainChannelSelection = body:Add("JNVoiceMod.freqSelector")
+	local mainChannelSelection = body.mainChannelSelection
+	mainChannelSelection:SetText((JNVoiceMod:FindFreqName(body.freqs.main.channel) or string.format("%.1f MHz",body.freqs.main.freq)))
+	mainChannelSelection:SetFont("JNVoiceMod.header")
+	mainChannelSelection:Dock(TOP)
+	mainChannelSelection:DockMargin(8,4,8,0)	
+	mainChannelSelection.channel = 1
+
+	if radioType == 1 then
+
+		body.addChannelLabel = body:Add("DLabel")
+		local addChannelLabel = body.addChannelLabel addChannelLabel:Dock(TOP) addChannelLabel:DockMargin(8,0,8,0) addChannelLabel:SetFont("JNVoiceMod.header")
+		addChannelLabel:SetText(JNVoiceMod:GetPhrase("addChannel",ply,JNVoiceMod.Config.FreqRange.min,JNVoiceMod.Config.FreqRange.max))
+
+		// add'l channel selection
+		body.addChannelSelection = body:Add("JNVoiceMod.freqSelector")
+		local addChannelSelection = body.addChannelSelection
+		addChannelSelection:SetText((JNVoiceMod:FindFreqName(body.freqs.add.channel) or string.format("%.1f MHz",body.freqs.add.freq)))
+		addChannelSelection:SetFont("JNVoiceMod.header")
+		addChannelSelection:Dock(TOP)
+		addChannelSelection:DockMargin(8,4,8,0)	
+		addChannelSelection.channel = 2
+
+	end
+
+
+end

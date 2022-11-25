@@ -39,3 +39,9 @@ end
 function SWEP:SecondaryAttack()
     
 end
+
+function SWEP:Reload()
+    if CLIENT then
+        JNVoiceMod:OpenRadioGui(2)
+    end
+end

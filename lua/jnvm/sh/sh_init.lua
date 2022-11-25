@@ -79,6 +79,16 @@ function JNVoiceMod:playTXRXSound(ply,ent)
     end
 end
 
+function JNVoiceMod:FindFreq(id)
+    for k,v in pairs(JNVoiceMod.Config.DefinedFreq) do
+        if v.id == id then return k end
+    end
+end
+function JNVoiceMod:FindFreqName(id)
+    for k,v in pairs(JNVoiceMod.Config.DefinedFreq) do
+        if v.id == id then return v.name end
+    end
+end
 
 // todo
 // jammer?
