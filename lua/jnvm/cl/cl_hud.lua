@@ -27,17 +27,7 @@ end )
 JNVoiceMod:CreateFont("hudradio",10)
 
 local alpha = 255 
-local color = JNVoiceMod.ClConfig.GuiColor
-local colorWhisper = table.Copy(color)
-	colorWhisper.a = 255
-local colorTalk = table.Copy(color)
-	colorTalk.a = 255
-local colorYell = table.Copy(color)
-	colorYell.a = 255
-local colorRadio = table.Copy(JNVoiceMod.clgui.colors.primary)
-	colorRadio.a = 255
-local colorText = table.Copy(JNVoiceMod.clgui.text.primary)
-	colorText.a = 255
+local color,guicolor,colorText,colorRadio,colorYell,colorTalk,colorWhisper
 local hasRadioLerp = 0
 
 local time = CurTime()
@@ -47,6 +37,21 @@ local lastRadioToggle = nil
 hook.Add( "HUDPaint", "JNVMHud", function()
 	if !JNVoiceMod.Config.GlobalVoice and JNVoiceMod.ClConfig.HudEnabled then
 
+		if table.ToString(guicolor or {}) != table.ToString(JNVoiceMod.ClConfig.GuiColor) then
+			
+			guicolor = table.Copy(JNVoiceMod.ClConfig.GuiColor)
+			color = table.Copy(guicolor)
+			colorWhisper = table.Copy(color)
+				colorWhisper.a = 255
+			colorTalk = table.Copy(color)
+				colorTalk.a = 255
+			colorYell = table.Copy(color)
+				colorYell.a = 255
+			colorRadio = table.Copy(JNVoiceMod.clgui.colors.primary)
+				colorRadio.a = 255
+			colorText = table.Copy(JNVoiceMod.clgui.text.primary)
+				colorText.a = 255
+		end
 
 		local scrW,scrH = ScrW(),ScrH()
 		local ply = LocalPlayer()
@@ -89,8 +94,8 @@ hook.Add( "HUDPaint", "JNVMHud", function()
 		surface.SetMaterial( Material("jnvm/radio.png") )
 		surface.DrawTexturedRect(relX+(w*hasRadioLerp),relY+(h-iconSize)/2,iconSize,iconSize)
 
-		colorText.a = alpha
-		draw.SimpleText((ply:GetNWBool("JNVoiceModRadioEnabled") and "ON" or "OFF"),"JNVoiceMod.hudradio",relX+(w*hasRadioLerp)+17,relY+(h*0.95),colorText,TEXT_ALIGN_CENTER,TEXT_ALIGN_BOTTOM)
+		colorText.a = alpha*hasRadioLerp
+		draw.SimpleText((ply:GetNWBool("JNVoiceModRadioEnabled") and "ON" or "OFF"),"JNVoiceMod.hudradio",relX+w+17*hasRadioLerp,relY+(h*0.95),colorText,TEXT_ALIGN_CENTER,TEXT_ALIGN_BOTTOM)
 
 
 		// modes hud
