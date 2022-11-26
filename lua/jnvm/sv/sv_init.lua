@@ -44,10 +44,12 @@ JNVoiceMod:LoadConfig()
 
 // new player connected to server, so we have to give him current server config and basic values
 hook.Add( "PlayerInitialSpawn", "JNVoiceModSynchro", function( ply )
+    local tbl = {main = {freq = JNVoiceMod.Config.FreqRange.min, channel = nil},add = {freq = JNVoiceMod.Config.FreqRange.min+1, channel = nil}}
     JNVoiceMod:SynchronizeConfig(1,ply)
     ply:SetNWInt("JNVoiceModDist",1)
-    ply:SetNWString("JNVoiceModFreq",util.TableToJSON({main = {freq = JNVoiceMod.Config.FreqRange.min, channel = nil},add = {freq = JNVoiceMod.Config.FreqRange.min+1, channel = nil}}))
+    ply:SetNWString("JNVoiceModFreq",util.TableToJSON(tbl))
     ply:SetNWString("JNVoiceModChannels","[]")
+    JNVoiceMod.playerFreqs[ply:SteamID64()] = tbl
 end )
 // disable radio on player death
 hook.Add("PlayerDeath","JNVoiceModResetRadio",function(ply)
@@ -122,7 +124,7 @@ function JNVoiceMod:ResetChannels(ply)
 end
 
 
-
+JNVoiceMod.playerFreqs = {}
 
 // MAIN 
 hook.Add("PlayerCanHearPlayersVoice","JNVoiceModHook", function(listener, speaker)
@@ -155,6 +157,7 @@ hook.Add("PlayerCanHearPlayersVoice","JNVoiceModHook", function(listener, speake
             return false
         else
             if !JNVoiceMod.Config.GlobalVoice then
+                // todo using JNVoiceMod.playerFreqs
                 if dist then
                     return true,true
                 end

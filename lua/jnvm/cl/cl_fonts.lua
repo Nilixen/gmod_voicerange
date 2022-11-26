@@ -3,7 +3,6 @@ function JNVoiceMod:CreateFont(name, size, weight)
         font = JNVoiceMod.clgui.font,
         size = size or 16,
         weight = weight or 500,
-
     })
 
 end

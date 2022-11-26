@@ -92,10 +92,7 @@ end
 
 // todo
 // jammer?
-// hud
-// add a function to give a frequency to certain person (option to be permanent even death)
-// remove custom frequencies on death
-// create value for selected freqs (main and add)
+// hud (1/2)
 // main function 
 // get/set functions for external use
 // cleanup

@@ -43,9 +43,7 @@ net.Receive("jnvm_network",function(len, ply)
             JNVoiceMod:playTXRXSound(ply)
         end
     elseif num == 4 then    // toggle radio on/off
-        
         JNVoiceMod:ForceRadio(ply)
-        
     elseif num == 5 then    // select frequency todo new freq is json table string
         local tbl = net.ReadTable()
         for k,v in pairs(tbl) do
@@ -53,6 +51,7 @@ net.Receive("jnvm_network",function(len, ply)
                 v.freq = math.Clamp(math.Round(v.freq,1),JNVoiceMod.Config.FreqRange.min,JNVoiceMod.Config.FreqRange.max)
             end
         end
+        JNVoiceMod.playerFreqs[ply:SteamID64()] = tbl
         ply:SetNWString("JNVoiceModFreq",util.TableToJSON(tbl))
     end
 end)

@@ -122,31 +122,26 @@ hook.Add("Think","JNVMBindCheck",function()
 	pressedMode = not vcRangeBind
 	
 	// detect radio bind and play sounds
-	if LocalPlayer():GetNWBool("JNVoiceModRadioEnabled",false) then // works only if player has enabled radio
 
-		local hasRadio = JNVoiceMod:WhichRadio(LocalPlayer())
-		local radioMainBindPressed = (input.IsButtonDown(JNVoiceMod.ClConfig.BindRadioMain) and hasRadio > 0)
-		local radioAddBindPressed = (input.IsButtonDown(JNVoiceMod.ClConfig.BindRadioAdd) and hasRadio == 1)	// hasRadio == 1 due to checking process... please look at JNVM:HasRadio(ply) function in sh_init.lua file
-		
-		local radioChannel = false	// false = main, true = additional
-		if radioMainBindPressed then radioChannel = false elseif radioAddBindPressed then radioChannel = true end
+	local hasRadio = JNVoiceMod:WhichRadio(LocalPlayer())
+	local radioMainBindPressed = (input.IsButtonDown(JNVoiceMod.ClConfig.BindRadioMain) and hasRadio > 0)
+	local radioAddBindPressed = (input.IsButtonDown(JNVoiceMod.ClConfig.BindRadioAdd) and hasRadio == 1)	// hasRadio == 1 due to checking process... please look at JNVM:HasRadio(ply) function in sh_init.lua file
+	
+	local radioChannel = false	// false = main, true = additional
+	if radioMainBindPressed then radioChannel = false elseif radioAddBindPressed then radioChannel = true end
 
-		if (radioMainBindPressed or radioAddBindPressed) and onRadio == false then
-			onRadio = true
+	if (radioMainBindPressed or radioAddBindPressed) and onRadio == false and LocalPlayer():GetNWBool("JNVoiceModRadioEnabled",false) then
+		onRadio = true
 
-			permissions.EnableVoiceChat( true )
-			LocalPlayer():SetNWInt("JNVoiceModRadio",1)	// force set cuz there might be networking lag and without it it will result in flipped sounds
-			radioTX(radioChannel,true)
+		permissions.EnableVoiceChat( true )
+		LocalPlayer():SetNWInt("JNVoiceModRadio",(not radioChannel and 1 or 2))	// force set cuz there might be networking lag and without it it will result in flipped sounds
+		radioTX(radioChannel,true)
+	elseif (not (radioMainBindPressed or radioAddBindPressed) and onRadio) or (not LocalPlayer():GetNWBool("JNVoiceModRadioEnabled",false) and onRadio) then 
+		onRadio = false
 
-		elseif not (radioMainBindPressed or radioAddBindPressed) and onRadio then 
-			onRadio = false
-
-			permissions.EnableVoiceChat( false )
-			LocalPlayer():SetNWInt("JNVoiceModRadio",0)	// force set cuz there might be networking lag and without it it will result in flipped sounds
-			radioTX(radioChannel,false)
-
-		end
-
+		permissions.EnableVoiceChat( false )
+		LocalPlayer():SetNWInt("JNVoiceModRadio",0)	// force set cuz there might be networking lag and without it it will result in flipped sounds
+		radioTX(radioChannel,false)
 	end
 
 	// toggle radio bind and play sound
@@ -159,10 +154,19 @@ hook.Add("Think","JNVMBindCheck",function()
 	end
 end)
 
-
+JNVoiceMod.radioUsers = {}
 //test... works ... now implement it todo
-hook.Add("PlayerStartVoice", "ImageOnVoice", function()
-	local radioSoundEffect = CreateSound(LocalPlayer(),"jnvm/remote_start.wav")
-	radioSoundEffect:PlayEx(JNVoiceMod.ClConfig.RadioSounds,100)
+hook.Add("PlayerStartVoice", "JNVoiceModRadioUsersHUD", function(ply)
+	if tobool(ply:GetNWInt("JNVoiceModRadio",0)) then
+		table.insert(JNVoiceMod.radioUsers,1,{sid = ply:SteamID64(), radio = ply:GetNWInt("JNVoiceModRadio",0)})
+	end	
 end)
-hook.Remove("PlayerStartVoice","ImageOnVoice")
+
+hook.Add("PlayerEndVoice", "JNVoiceModRadioUsersHUD", function(ply)
+	for k,v in pairs(JNVoiceMod.radioUsers) do
+		if v.sid == ply:SteamID64() then
+			JNVoiceMod.radioUsers[k] = nil
+		end
+	end
+end)
+

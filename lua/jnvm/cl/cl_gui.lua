@@ -1089,6 +1089,38 @@ function PANEL:Init()
 	hudEnabledLabel:SetText(JNVoiceMod:GetPhrase("hudenabled"))
 	hudEnabledLabel:SetFont("JNVoiceMod.header")
 
+	self.maxTalkingMainHUDLabel = self:Add("DLabel")
+	local maxTalkingMainHUDLabel = self.maxTalkingMainHUDLabel
+	maxTalkingMainHUDLabel:Dock(TOP)
+	maxTalkingMainHUDLabel:DockMargin(8,8,8,0)
+	maxTalkingMainHUDLabel:SetText(JNVoiceMod:GetPhrase("maxtalkinghudmain"))
+	maxTalkingMainHUDLabel:SetFont("JNVoiceMod.header")
+
+	self.maxTalkingMainHUD = self:Add("JNVoiceMod.slider")
+	local maxTalkingMainHUD = self.maxTalkingMainHUD
+	maxTalkingMainHUD:Dock(TOP)
+	maxTalkingMainHUD:DockMargin(8,4,8,0)
+	maxTalkingMainHUD:SetMinMax(1,10)
+	maxTalkingMainHUD:SetValue(JNVoiceMod.ClConfig.MaxMainPlayersTalking)
+	maxTalkingMainHUD:SetDefaultValue(JNVoiceMod.ClConfig.MaxMainPlayersTalking)
+
+	self.maxTalkingAddHUDLabel = self:Add("DLabel")
+	local maxTalkingAddHUDLabel = self.maxTalkingAddHUDLabel
+	maxTalkingAddHUDLabel:Dock(TOP)
+	maxTalkingAddHUDLabel:DockMargin(8,8,8,0)
+	maxTalkingAddHUDLabel:SetText(JNVoiceMod:GetPhrase("maxtalkinghudadd"))
+	maxTalkingAddHUDLabel:SetFont("JNVoiceMod.header")
+
+	self.maxTalkingAddHUD = self:Add("JNVoiceMod.slider")
+	local maxTalkingAddHUD = self.maxTalkingAddHUD
+	maxTalkingAddHUD:Dock(TOP)
+	maxTalkingAddHUD:DockMargin(8,4,8,0)
+	maxTalkingAddHUD:SetMinMax(1,10)
+	maxTalkingAddHUD:SetValue(JNVoiceMod.ClConfig.MaxAddPlayersTalking)
+	maxTalkingAddHUD:SetDefaultValue(JNVoiceMod.ClConfig.MaxAddPlayersTalking)
+
+
+
 	self.hudEnabledCheckbox = self:Add("JNVoiceMod.checkBox")
 	local checkbox = self.hudEnabledCheckbox
 	checkbox:SetText(JNVoiceMod:GetPhrase("ishudenabled"))
@@ -1459,6 +1491,9 @@ function JNVoiceMod:OpenClConfig()
 		JNVoiceMod.ClConfig.ChngAlpha = body.hudAlphaMode:GetValue()/100
 		
 		JNVoiceMod.ClConfig.HudEnabled = body.hudEnabledCheckbox:GetChecked()
+
+		JNVoiceMod.ClConfig.MaxMainPlayersTalking = body.maxTalkingMainHUD:GetValue()
+		JNVoiceMod.ClConfig.MaxAddPlayersTalking = body.maxTalkingAddHUD:GetValue()
 
 		JNVoiceMod.ClConfig.SphereEnabled = body.sphereEnabledCheckbox:GetChecked()
 		JNVoiceMod.ClConfig.SphereAlpha = body.sphereAlpha:GetValue()/100

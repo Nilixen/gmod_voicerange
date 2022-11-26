@@ -25,10 +25,12 @@ end )
 
 //	HUD
 JNVoiceMod:CreateFont("hudradio",13)
+JNVoiceMod:CreateFont("hudplayers",21)
 
 local alpha = 255 
 local offsetX,offXT = 0,0		//XT - xTarget,
 local color,guicolor,colorText,plyWasTalking,colorRadio,colorYell,colorTalk,colorWhisper,colorFreq
+local hMC,hAC = 0,0 //hMainChannel, hAdd'lChannel
 local hasRadioLerp = 0
 
 local time = CurTime()
@@ -108,12 +110,56 @@ hook.Add( "HUDPaint", "JNVMHud", function()
 		end
 		colorRadio.a = alpha*hasRadioLerp
 
+		local mainChannel,addChannel = {},{}
+		for k,v in pairs(JNVoiceMod.radioUsers) do
+			if v.radio == 1 then
+				mainChannel[k] = v
+			elseif v.radio == 2 then
+				addChannel[k] = v
+			end
+		end
+
 		local radioEnabled = ply:GetNWBool("JNVoiceModRadioEnabled")
 		colorFreq.a = Lerp(5*FrameTime(),colorFreq.a,alpha*(radioEnabled and 1 or 0))
 
+		// main channel
+		hMC = math.Round(Lerp(10*FrameTime(),hMC,(radioEnabled and (math.Clamp(table.Count(mainChannel),0,JNVoiceMod.ClConfig.MaxMainPlayersTalking)*25) or 0)),2)
+		local drawTopCorner = (not radioEnabled and true or (table.Count(mainChannel) == 0 and hMC <= .5))
 
-		draw.RoundedBox(16,relX,relY,w+offsetX*hasRadioLerp,h,bgColor)
-		draw.RoundedBoxEx(16,relX+w,relY,offsetX*hasRadioLerp,h,color,false,true,false,true)
+		// add channel
+		hAC = math.Round(Lerp(10*FrameTime(),hAC,(radioEnabled and (math.Clamp(table.Count(addChannel),0,JNVoiceMod.ClConfig.MaxAddPlayersTalking)*25) or 0)),2)
+		local drawBottomCorner = (not radioEnabled and true or (table.Count(addChannel) == 0 and hAC <= .5))
+
+
+		if radioEnabled then
+			// main channel
+			draw.RoundedBoxEx(16,relX+w,relY-hMC,offsetX*hasRadioLerp,hMC,bgColor,true,true,false,false)
+			draw.RoundedBoxEx(16,relX+w,relY-hMC,offsetX*hasRadioLerp,hMC,color,true,true,false,false)	
+
+			local i = math.Clamp(table.Count(mainChannel),0,JNVoiceMod.ClConfig.MaxMainPlayersTalking)
+			for k,v in pairs(mainChannel) do
+				if i <= 0 then break end
+				draw.SimpleText(string.sub(player.GetBySteamID64(v.sid):Name(),1,13),"JNVoiceMod.hudplayers",relX+w+(offsetX/2),relY+(i*25)-hMC,colorRadio,TEXT_ALIGN_CENTER,TEXT_ALIGN_BOTTOM)
+				i = i-1
+			end
+
+			// add channel
+			draw.RoundedBoxEx(16,relX+w,relY+h,offsetX*hasRadioLerp,hAC,bgColor,false,false,true,true)
+			draw.RoundedBoxEx(16,relX+w,relY+h,offsetX*hasRadioLerp,hAC,color,false,false,true,true)	
+
+			local i = math.Clamp(table.Count(addChannel),0,JNVoiceMod.ClConfig.MaxAddPlayersTalking)
+			for k,v in pairs(addChannel) do
+				if i <= 0 then break end
+				draw.SimpleText(string.sub(player.GetBySteamID64(v.sid):Name(),1,13),"JNVoiceMod.hudplayers",relX+w+(offsetX/2),(relY+h)+hAC-(i*25),colorRadio,TEXT_ALIGN_CENTER,TEXT_ALIGN_TOP)
+				i = i-1
+			end
+
+
+		end
+
+		draw.RoundedBoxEx(16,relX,relY,w+offsetX*hasRadioLerp,h,bgColor,true,drawTopCorner,true,drawBottomCorner)
+		draw.RoundedBoxEx(16,relX+w,relY,offsetX*hasRadioLerp,h,color,false,drawTopCorner,false,drawBottomCorner)
+
 
 		local iconSize = h*0.65
 		surface.SetDrawColor(colorRadio)
@@ -127,6 +173,7 @@ hook.Add( "HUDPaint", "JNVMHud", function()
 			draw.SimpleText(JNVoiceMod:GetPhrase("addChannelHUD",ply,(JNVoiceMod:FindFreqName(freqs.add.channel) or freqs.add.freq.." MHz")),"JNVoiceMod.hudradio",relX+(w+37)*hasRadioLerp,relY+(h*0.5),colorFreq,TEXT_ALIGN_LEFT,TEXT_ALIGN_TOP)
 		end
 		
+
 		// modes hud
 			// shadow for whisper
 			surface.SetDrawColor(blendColor)
