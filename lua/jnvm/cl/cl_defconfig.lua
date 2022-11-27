@@ -1,5 +1,5 @@
 // it's only default config for client, if the client doesn't have one, it will create a local file in his pc with this preset
-JNVoiceMod.ClConfig = {}
+JNVoiceMod.ClConfig = JNVoiceMod.ClConfig or {}
 
 JNVoiceMod.ClConfig.TalkAlpha = 0.9
 JNVoiceMod.ClConfig.IdleAlpha = 0.15

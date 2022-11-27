@@ -55,6 +55,7 @@ end )
 hook.Add("PlayerDeath","JNVoiceModResetRadio",function(ply)
     JNVoiceMod:ForceRadio(ply,false)
     JNVoiceMod:ResetChannels(ply)
+    JNVoiceMod.playerFreqs[ply:SteamID64()] = util.JSONToTable(ply:GetNWString("JNVoiceModFreq","[]"))
 end)
 
 
@@ -124,7 +125,7 @@ function JNVoiceMod:ResetChannels(ply)
 end
 
 
-JNVoiceMod.playerFreqs = {}
+JNVoiceMod.playerFreqs = JNVoiceMod.playerFreqs or {}
 
 // MAIN 
 hook.Add("PlayerCanHearPlayersVoice","JNVoiceModHook", function(listener, speaker)
@@ -158,13 +159,28 @@ hook.Add("PlayerCanHearPlayersVoice","JNVoiceModHook", function(listener, speake
         else
             if !JNVoiceMod.Config.GlobalVoice then
                 // todo using JNVoiceMod.playerFreqs
+                local speakerUsingRadio = speaker:GetNWInt("JNVoiceModRadio",0)
+                local speakerFreq = (speakerUsingRadio == 1 and JNVoiceMod.playerFreqs[speaker:SteamID64()].main or speakerUsingRadio == 2 and JNVoiceMod.playerFreqs[speaker:SteamID64()].add)
+                local listenerEnabledRadio = listener:GetNWBool("JNVoiceModRadioEnabled",false)
+                if tobool(speakerUsingRadio) and listenerEnabledRadio then 
+                    for kL,vL in pairs(JNVoiceMod.playerFreqs[listener:SteamID64()]) do
+                        if speakerFreq.freq and vL.freq then 
+                            if speakerFreq.freq == vL.freq then
+                                return true,false
+                            end
+                        elseif speakerFreq.channel and vL.channel then
+                            if speakerFreq.channel == vL.channel then
+                                return true,false
+                            end
+                        end
+                    end
+                end
                 if dist then
                     return true,true
                 end
+                return false,false
             else
-
                 return true,false
-
             end
         end
     end

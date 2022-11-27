@@ -11,31 +11,47 @@ list.Set( "DesktopWindows", "JNVoiceModConfig", {
 	end
 })
 
-local t = CurTime() + 0.2
+local t = CurTime() + 0.1
 hook.Add("Think","JNVoiceMod_ClVolume",function()
 
 	if t >= CurTime() then return end
-	t = CurTime() + 0.2
+	t = CurTime() + 0.1
+	if !JNVoiceMod.Config.GlobalVoice then
+		for k,v in pairs(player.GetAll()) do
 
-	for k,v in pairs(player.GetAll()) do
+			if v == LocalPlayer() then continue end
 
-		if v == LocalPlayer() then continue end
+			// sound fading
+			if not tobool(v:GetNWInt("JNVoiceModRadio",0)) then
+				local plyMode
+				if v:IsBot() then return end
+				plyMode = v:GetNWInt("JNVoiceModDist",2)
+				local dist = JNVoiceMod.Config.Ranges[plyMode].rng
+				v:SetVoiceVolumeScale( math.Clamp((dist*1.5 - LocalPlayer():GetPos():Distance(v:GetPos()))/(dist),0,1) )
+			else
+				local radioType = v:GetNWInt("JNVoiceModRadio")
+				local freqs = util.JSONToTable(v:GetNWString("JNVoiceModFreq","[]"))
+				local freq = (radioType == 1 and (freqs.main.freq or freqs.main.channel) or radioType == 2 and (freqs.add.freq or freqs.add.channel))	// frequency player is talking on to
+				
+				local LocalPlayerFreqs = util.JSONToTable(LocalPlayer():GetNWString("JNVoiceModFreq","[]"))
+				for k2,v2 in pairs(LocalPlayerFreqs) do
+					if v2.freq == freq or v2.channel == freq then
+						if k2 == "main" then
+							v:SetVoiceVolumeScale( JNVoiceMod.ClConfig.RadioVCMain )
+						elseif k2 == "add" then
+							v:SetVoiceVolumeScale( JNVoiceMod.ClConfig.RadioVCAdd )
+						end
+					end
+				end
 
-		// sound fading
-		if not v:GetNWBool("JNVoiceModRadio") then
-			local plyMode
-			if v:IsBot() then return end
-			plyMode = v:GetNWInt("JNVoiceModDist",2)
-			local dist = JNVoiceMod.Config.Ranges[plyMode].rng
-			v:SetVoiceVolumeScale( math.Clamp((dist*1.5 - LocalPlayer():GetPos():Distance(v:GetPos()))/(dist),0,1) )
-		else
-			v:SetVoiceVolumeScale( JNVoiceMod.ClConfig.RadioLoudness )
+			end
+			
 		end
-		
+	else
+		v:SetVoiceVolumeScale( 1 )
 	end
 
 end)
-
 
 //loading cl config
 file.CreateDir("jnvm")
@@ -155,10 +171,11 @@ hook.Add("Think","JNVMBindCheck",function()
 end)
 
 JNVoiceMod.radioUsers = {}
-//test... works ... now implement it todo
+
 hook.Add("PlayerStartVoice", "JNVoiceModRadioUsersHUD", function(ply)
 	if tobool(ply:GetNWInt("JNVoiceModRadio",0)) then
 		table.insert(JNVoiceMod.radioUsers,1,{sid = ply:SteamID64(), radio = ply:GetNWInt("JNVoiceModRadio",0)})
+		JNVoiceMod:playTXRXSound(ply)
 	end	
 end)
 
@@ -166,6 +183,7 @@ hook.Add("PlayerEndVoice", "JNVoiceModRadioUsersHUD", function(ply)
 	for k,v in pairs(JNVoiceMod.radioUsers) do
 		if v.sid == ply:SteamID64() then
 			JNVoiceMod.radioUsers[k] = nil
+			JNVoiceMod:playTXRXSound(ply)
 		end
 	end
 end)
