@@ -1,20 +1,55 @@
-
-
--- Whisper
-JNVoiceMod.Lang.Whisper = "SZEPT"
-
--- Talk
-JNVoiceMod.Lang.Talk = "NORMALNIE"
-
--- Shout
-JNVoiceMod.Lang.Yell = "KRZYK"
-
---
--- It's saying that when you change your voice mode to whispering!
-JNVoiceMod.Lang.Whispering = "Teraz SZEPTASZ!"
-
--- It's saying that when you change your voice mode to normal!
-JNVoiceMod.Lang.TalkingNormally = "Teraz mówisz NORMALNIE!"
-
--- It's saying that when you change your voice mode to Yelling!
-JNVoiceMod.Lang.Yelling = "Teraz KRZYCZYSZ!"
+JNVoiceMod.Lang["PL-pl"] = {
+    ["lang"] = "Polski",
+    ["close"] = "Zamknij",
+    ["admConfigGUI"] = "N's Improved Voice Chat - Konfiguracja administratora",
+    ["clConfigGUI"] = "N's Improved Voice Chat - Konfiguracja klienta",
+    ["onlyTTT"] = "Nie działa z trybem gry TTT!",
+    ["save"] = "Zapisz",
+    ["submit"] = "Zatwierdź",
+    ["whisperRng"] = "Zasięg szeptu",
+    ["talkRng"] = "Zasięg rozmowy",
+    ["yellRng"] = "Zasięg krzyku",
+    ["globalvoice"] = "Rozmowa globalna",
+    ["units"] = "jednostek",
+    ["serverLanguage"] = "Język serwera",
+    ["clientLanguage"] = "Język klienta",
+    ["guiColor"] = "Kolor GUI",
+    ["red"] = "R (0-255)",
+    ["green"] = "G (0-255)",
+    ["blue"] = "B (0-255)",
+    ["suprise!"] = "Pięknie wykorzystane miejsce :>",
+    ["clickcolor"] = "Ustaw kolor",
+    ["hudenabled"] = "Stan HUDa",
+    ["ishudenabled"] = "Czy HUD ma być włączony?",
+    ["maxtalkinghudmain"] = "Ilość pokazanych użytkowników radia na głownym kanale",
+    ["maxtalkinghudadd"] = "Ilość pokazanych użytkowników radia na dodatkowym kanale",
+    ["hudAlphaIdle"] = "Alfa HUDa podczas spoczynku",
+    ["hudAlphaTalk"] = "Alfa HUDa podczas rozmowy",
+    ["hudAlphaMode"] = "Alfa HUDa podczas zmianu trybu",
+    ["sphereenabled"] = "Stan sfera rozmowy",
+    ["issphereenabled"] = "Czy sfera rozmowy ma być włączona?",
+    ["sphereAlpha"] = "Alfa sfery rozmowy",
+    ["bindChanger"] = "Przycisk przełączenia tryby rozmowy",
+    ["radioBindChangerMain"] = "Przycisk rozmowy na głownym kanale radia",
+    ["radioBindChangerAdd"] = "Przycisk rozmowy na dodatkowym kanale radia",
+    ["radioLoudnessMain"] = "Głośność czatu głosowego głownego kanału",
+    ["radioLoudnessAdd"] = "Głośność czatu głosowego dodatkowego kanału",
+    ["radioSounds"] = "Głośność efektów dzwiękowych radia",
+    ["radioSoundsEnabled"] = "Stan efektów dziękowych radia",
+    ["radioSoundsToggle"] = "ON słyszalne przez wszystkich w pobliżu; OFF słyszalne tylko przez użytkownika radia",
+    ["radioToggle"] = "Przycisk przełączenia radia (ON/OFF)",
+    ["freqLabel"] = "Częstotliwości niestandardowe - uwaga, usuwanie może spowodować błędy skryptu",
+    ["selectFreqFirst"] = "Najpierw wybierz częstotliwość lub stwórz nową!",
+    ["addNew"] = "Dodaj",
+    ["saveSelected"] = "Zapisz",
+    ["delete"] = "Usuń",
+    ["freqName"] = "Nazwa",
+    ["freqID"] = "ID",
+    ["radioGUI"] = "Ustawienia radia (WIP!)",
+    ["mainChannel"] = "Kanał główny (%i MHz - %i MHz)",
+    ["mainChannelHUD"] = "Gł.: %s",
+    ["addChannel"] = "Kanał dodatkowy (%i MHz - %i MHz)",
+    ["addChannelHUD"] =  "Dod.: %s",
+    ["freqSelector"] = "Wybór częstotliwości",
+    ["channel"] = "Kanał",
+}
