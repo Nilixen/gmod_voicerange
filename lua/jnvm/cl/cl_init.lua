@@ -110,6 +110,13 @@ concommand.Add("jnvmconfigmenu", function( ply, cmd, args )
 	end
 end )
 
+// open client menu
+concommand.Add("jnvmconfig", function( ply, cmd, args )
+	if IsValid(ply) then
+		JNVoiceMod:OpenClConfig()
+	end
+end )
+
 
 // fix gui by closing jnvm frame
 concommand.Add("jnvmfixgui", function( ply, cmd, args )
