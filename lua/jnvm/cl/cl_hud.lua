@@ -1,24 +1,28 @@
 // Speak Sphere
 local lerp1 = 0
-local dst = LocalPlayer():GetNWInt("JNVoiceModDist")
+local dst = 0
 hook.Add("PostDrawOpaqueRenderables", "JNVMSphere", function()
-	if !JNVoiceMod.Config.GlobalVoice and JNVoiceMod.ClConfig.SphereEnabled then
-		local ply = LocalPlayer()
-	    if engine.ActiveGamemode() == "terrortown" then
-			if ply:IsActiveTraitor() and !ply.traitor_gvoice or ply:IsSpec() or GetRoundState() != ROUND_ACTIVE then
-				return
-			else
-				dst = Lerp(4*FrameTime(),dst,ply:GetNWInt("JNVoiceModDist"))
-				lerp1 = Lerp(4*FrameTime(),lerp1,(ply:IsSpeaking() and JNVoiceMod.ClConfig.SphereAlpha*255 or 0))
-				render.SetColorMaterial()
-				render.DrawSphere( ply:GetPos(), -dst, 50, 50, Color( 0, 0, 0, lerp1 ) )
+	if JNVoiceMod then
+		if !JNVoiceMod.Config.GlobalVoice and JNVoiceMod.ClConfig.SphereEnabled then
+			local ply = LocalPlayer()
+			if IsValid(ply) then
+				if engine.ActiveGamemode() == "terrortown" then
+					if ply:IsActiveTraitor() and !ply.traitor_gvoice or ply:IsSpec() or GetRoundState() != ROUND_ACTIVE then
+						return
+					else
+						dst = Lerp(4*FrameTime(),dst,ply:GetNWInt("JNVoiceModDist"))
+						lerp1 = Lerp(4*FrameTime(),lerp1,(ply:IsSpeaking() and JNVoiceMod.ClConfig.SphereAlpha*255 or 0))
+						render.SetColorMaterial()
+						render.DrawSphere( ply:GetPos(), -dst, 50, 50, Color( 0, 0, 0, lerp1 ) )
+					end
+				else
+					dst = Lerp(4*FrameTime(),dst,JNVoiceMod.Config.Ranges[ply:GetNWInt("JNVoiceModDist")].rng)
+					lerp1 = Lerp(4*FrameTime(),lerp1,(ply:IsSpeaking() and JNVoiceMod.ClConfig.SphereAlpha*255 or 0))
+					local color = JNVoiceMod.ClConfig.Ranges[ply:GetNWInt("JNVoiceModDist")].color
+					render.SetColorMaterial()
+					render.DrawSphere( ply:GetPos(), -dst, 50, 50, Color( color.r, color.g, color.b, lerp1 ) )
+				end
 			end
-		else
-			dst = Lerp(4*FrameTime(),dst,JNVoiceMod.Config.Ranges[ply:GetNWInt("JNVoiceModDist")].rng)
-			lerp1 = Lerp(4*FrameTime(),lerp1,(ply:IsSpeaking() and JNVoiceMod.ClConfig.SphereAlpha*255 or 0))
-			local color = JNVoiceMod.ClConfig.Ranges[ply:GetNWInt("JNVoiceModDist")].color
-			render.SetColorMaterial()
-			render.DrawSphere( ply:GetPos(), -dst, 50, 50, Color( color.r, color.g, color.b, lerp1 ) )
 		end
 	end
 end )

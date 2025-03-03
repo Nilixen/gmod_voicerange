@@ -24,10 +24,6 @@ SWEP.Secondary = {
     DefaultClip = -1,
 }
 
-function SWEP:Initialize()
-    self:GetOwner():SetNWBool("JNVoiceModRadioEnabled",false)
-end
-
 
 function SWEP:PrimaryAttack()
 
