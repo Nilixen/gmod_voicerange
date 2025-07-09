@@ -27,7 +27,12 @@ hook.Add("Think","JNVoiceMod_ClVolume",function()
 				if v:IsBot() then return end
 				plyMode = v:GetNWInt("JNVoiceModDist",2)
 				local dist = JNVoiceMod.Config.Ranges[plyMode].rng
-				v:SetVoiceVolumeScale( math.Clamp((dist*1.5 - LocalPlayer():GetPos():Distance(v:GetPos()))/(dist),0,1) )
+				local max_falloff_distance = 100
+				if real_distance < dist then
+					v:SetVoiceVolumeScale( math.Clamp((dist*1.5 - real_distance)/(dist),0,1) )
+				else
+					v:SetVoiceVolumeScale( math.Clamp(0.5*((dist+max_falloff_distance) - real_distance)/(max_falloff_distance),0,1) )
+				end
 			else
 				local radioType = v:GetNWInt("JNVoiceModRadio")
 				local freqs = util.JSONToTable(v:GetNWString("JNVoiceModFreq","[]"))

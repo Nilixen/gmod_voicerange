@@ -130,7 +130,8 @@ JNVoiceMod.playerFreqs = JNVoiceMod.playerFreqs or {}
 // MAIN 
 hook.Add("PlayerCanHearPlayersVoice","JNVoiceModHook", function(listener, speaker)
     if listener != speaker then
-        local dist = listener:GetPos():Distance(speaker:GetPos()) <= JNVoiceMod.Config.Ranges[speaker:GetNWInt("JNVoiceModDist")].rng
+        local max_falloff_distance = 100
+        local dist = listener:GetPos():Distance(speaker:GetPos()) <= JNVoiceMod.Config.Ranges[speaker:GetNWInt("JNVoiceModDist")].rng + max_falloff_distance
 
         if engine.ActiveGamemode() == "terrortown" then
             if GetRoundState() != ROUND_ACTIVE then
