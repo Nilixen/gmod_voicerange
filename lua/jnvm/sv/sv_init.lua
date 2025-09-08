@@ -162,7 +162,14 @@ hook.Add("PlayerCanHearPlayersVoice","JNVoiceModHook", function(listener, speake
                 // todo using JNVoiceMod.playerFreqs
                 local speakerUsingRadio = speaker:GetNWInt("JNVoiceModRadio",0)
                 local speakerFreq = (speakerUsingRadio == 1 and JNVoiceMod.playerFreqs[speaker:SteamID64()].main or speakerUsingRadio == 2 and JNVoiceMod.playerFreqs[speaker:SteamID64()].add)
-                local listenerEnabledRadio = listener:GetNWBool("JNVoiceModRadioEnabled",false)
+                //turn off listeners radio if listener doesnt own radio
+                // to be checked if doesnt cause issues with performance
+                local listenerEnabledRadio = false
+                if JNVoiceMod:WhichRadio(listener) == 0 then
+                    listener:SetNWBool("JNVoiceModRadioEnabled",false)
+                else    // check only to be sure the networked value was updated.
+                    listenerEnabledRadio = listener:GetNWBool("JNVoiceModRadioEnabled",false)
+                end
                 if tobool(speakerUsingRadio) and listenerEnabledRadio then 
                     for kL,vL in pairs(JNVoiceMod.playerFreqs[listener:SteamID64()]) do
                         if speakerFreq.freq and vL.freq then 
